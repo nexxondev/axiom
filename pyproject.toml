@@ -1,14 +1,14 @@
 [build-system]
 requires = ["setuptools>=68", "wheel"]
-build-backend = "setuptools.backends.legacy:build"
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "axiom"
 version = "0.1.0"
 description = "Adaptive eXecution Intelligence for Operations Management — Nexxon National"
 authors = [{ name = "Nexxon National", email = "dev@nexxonnational.com" }]
-requires-python = ">=3.11"
-license = { text = "PROPRIETARY" }
+requires-python = ">=3.12"
+license = "PROPRIETARY"
 
 dependencies = [
     "fastapi>=0.111.0",
@@ -22,7 +22,6 @@ dependencies = [
     "passlib[bcrypt]>=1.7.4",
     "python-multipart>=0.0.9",
     "httpx>=0.27.0",
-    "geopandas>=0.14.0",
     "shapely>=2.0.0",
     "langgraph>=0.1.0",
     "langchain>=0.2.0",
@@ -41,16 +40,20 @@ dev = [
     "mypy>=1.10.0",
 ]
 
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["app*"]
+
 [tool.black]
 line-length = 88
-target-version = ["py311"]
+target-version = ["py312"]
 
 [tool.ruff]
 line-length = 88
-target-version = "py311"
+target-version = "py312"
 
 [tool.mypy]
-python_version = "3.11"
+python_version = "3.12"
 strict = true
 
 [tool.pytest.ini_options]
