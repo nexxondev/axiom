@@ -1,2 +1,2 @@
-# axiom
+# AXIOM
 AI assisted mission command platform for US SOCOM
