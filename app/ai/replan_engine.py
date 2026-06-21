@@ -149,7 +149,7 @@ async def run_replan(
             summary=coa_data["summary"],
             risk_level=coa_data["risk_level"],
             estimated_duration_min=coa_data.get("time_delta_minutes"),
-            waypoints=coa_data.get("waypoint_changes", []),
+            waypoints=[{"change": c} for c in coa_data.get("waypoint_changes", [])],
             reasoning=coa_data.get("reasoning"),
             status=CoAStatus.GENERATED,
         )
