@@ -1,0 +1,31 @@
+version: "3.9"
+
+# AXIOM — Nexxon National
+# TILO Sandbox Deployment
+# Classification: UNCLASSIFIED
+
+services:
+  axiom:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    container_name: axiom
+    ports:
+      - "8000:8000"
+    environment:
+      - APP_ENV=sandbox
+      - DEBUG=false
+      - SECRET_KEY=tilo-sandbox-key-replace-in-production-64chars-minimum
+      - LOG_LEVEL=INFO
+    volumes:
+      - axiom_logs:/app/logs
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python3", "-c",
+             "import httpx; r=httpx.get('http://localhost:8000/api/v1/health'); exit(0 if r.status_code==200 else 1)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  axiom_logs:
