@@ -11,6 +11,7 @@ from app.models.asset import Asset, AssetCreate, AssetUpdate
 from app.models.operator import Operator, OperatorCreate, OperatorUpdate
 from app.models.coa import CoA, CoACreate, CoAUpdate
 from app.models.event import MissionEvent
+from app.models.target import Target, TargetCreate, TargetUpdate, TargetType, TargetStatus, ROEStatus
 
 __all__ = [
     "MissionStatus", "MissionType", "WaypointType",
@@ -24,4 +25,6 @@ __all__ = [
     "Operator", "OperatorCreate", "OperatorUpdate",
     "CoA", "CoACreate", "CoAUpdate",
     "MissionEvent",
+    "Target", "TargetCreate", "TargetUpdate",
+    "TargetType", "TargetStatus", "ROEStatus",
 ]
