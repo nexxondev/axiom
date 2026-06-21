@@ -6,6 +6,9 @@ Main application entry point.
 """
 
 from fastapi import FastAPI, Request
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+import os
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 import time
@@ -61,6 +64,15 @@ async def global_exception_handler(request: Request, exc: Exception):
 
 
 app.include_router(v1_router, prefix=settings.API_V1_PREFIX)
+
+# Serve tactical UI
+if os.path.exists("frontend"):
+    app.mount("/static", StaticFiles(directory="frontend"), name="static")
+
+@app.get("/", include_in_schema=False)
+async def serve_ui():
+    return FileResponse("frontend/index.html")
+
 
 logger.info(
     "axiom_startup",

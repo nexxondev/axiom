@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AXIOM — Nexxon National</title>
+  <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
+  <link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #0a0a0a;
+      color: #e0e0e0;
+      font-family: 'Courier New', monospace;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ── HEADER ─────────────────────────────────── */
+    #header {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 48px;
+      background: rgba(0,0,0,0.85);
+      border-bottom: 1px solid #00FF41;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      z-index: 1000;
+    }
+
+    #header .logo {
+      color: #00FF41;
+      font-size: 18px;
+      font-weight: bold;
+      letter-spacing: 4px;
+    }
+
+    #header .classification {
+      color: #FF3B30;
+      font-size: 11px;
+      letter-spacing: 2px;
+      font-weight: bold;
+    }
+
+    #header .time {
+      color: #888;
+      font-size: 12px;
+      letter-spacing: 1px;
+    }
+
+    /* ── MAP ─────────────────────────────────────── */
+    #map {
+      position: fixed;
+      top: 48px;
+      left: 0;
+      right: 320px;
+      bottom: 0;
+    }
+
+    /* ── SIDEBAR ─────────────────────────────────── */
+    #sidebar {
+      position: fixed;
+      top: 48px;
+      right: 0;
+      width: 320px;
+      bottom: 0;
+      background: rgba(10,10,10,0.95);
+      border-left: 1px solid #1a1a1a;
+      overflow-y: auto;
+      z-index: 100;
+    }
+
+    .panel {
+      border-bottom: 1px solid #1a1a1a;
+      padding: 12px;
+    }
+
+    .panel-title {
+      color: #00FF41;
+      font-size: 10px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .panel-title .badge {
+      background: #00FF41;
+      color: #000;
+      font-size: 9px;
+      padding: 1px 6px;
+      border-radius: 2px;
+    }
+
+    /* ── MISSION STATUS ───────────────────────────── */
+    .mission-name {
+      font-size: 14px;
+      color: #fff;
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+
+    .mission-meta {
+      font-size: 11px;
+      color: #666;
+      margin-bottom: 4px;
+    }
+
+    .status-chip {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 2px;
+      font-size: 10px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      margin-top: 6px;
+    }
+
+    .status-active { background: #00FF41; color: #000; }
+    .status-planning { background: #FFD700; color: #000; }
+    .status-aborted { background: #FF3B30; color: #fff; }
+
+    /* ── THREAT LIST ─────────────────────────────── */
+    .threat-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 0;
+      border-bottom: 1px solid #111;
+      font-size: 11px;
+    }
+
+    .threat-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .threat-high { background: #FF3B30; }
+    .threat-medium { background: #FF8C00; }
+    .threat-low { background: #FFD700; }
+    .threat-critical { background: #8B0000; }
+
+    .threat-name { color: #ccc; flex: 1; }
+    .threat-conf { color: #555; font-size: 10px; }
+
+    /* ── TARGET LIST ─────────────────────────────── */
+    .target-item {
+      padding: 8px 0;
+      border-bottom: 1px solid #111;
+      font-size: 11px;
+    }
+
+    .target-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 3px;
+    }
+
+    .target-rank {
+      color: #444;
+      font-size: 10px;
+      width: 20px;
+    }
+
+    .target-name { color: #fff; font-weight: bold; flex: 1; }
+
+    .roe-badge {
+      font-size: 9px;
+      padding: 1px 5px;
+      border-radius: 2px;
+      font-weight: bold;
+    }
+
+    .roe-compliant { background: #00FF41; color: #000; }
+    .roe-restricted { background: #FF3B30; color: #fff; }
+    .roe-hold { background: #FF8C00; color: #000; }
+
+    .target-score {
+      color: #555;
+      font-size: 10px;
+      margin-left: 20px;
+    }
+
+    /* ── REPLAN BUTTON ───────────────────────────── */
+    #replan-btn {
+      width: 100%;
+      padding: 12px;
+      background: transparent;
+      border: 1px solid #FF8C00;
+      color: #FF8C00;
+      font-family: 'Courier New', monospace;
+      font-size: 11px;
+      letter-spacing: 3px;
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: all 0.2s;
+      margin-top: 8px;
+    }
+
+    #replan-btn:hover {
+      background: #FF8C00;
+      color: #000;
+    }
+
+    #replan-btn.loading {
+      border-color: #555;
+      color: #555;
+      cursor: not-allowed;
+    }
+
+    /* ── COA PANEL ───────────────────────────────── */
+    .coa-item {
+      padding: 8px;
+      border: 1px solid #1a1a1a;
+      margin-bottom: 6px;
+      border-radius: 2px;
+    }
+
+    .coa-item.recommended {
+      border-color: #00FF41;
+    }
+
+    .coa-title {
+      font-size: 11px;
+      color: #fff;
+      font-weight: bold;
+      margin-bottom: 3px;
+    }
+
+    .coa-risk {
+      font-size: 9px;
+      padding: 1px 5px;
+      border-radius: 2px;
+      font-weight: bold;
+      display: inline-block;
+      margin-bottom: 5px;
+    }
+
+    .risk-low { background: #00FF41; color: #000; }
+    .risk-medium { background: #FFD700; color: #000; }
+    .risk-high { background: #FF3B30; color: #fff; }
+    .risk-critical { background: #8B0000; color: #fff; }
+
+    .coa-summary {
+      font-size: 10px;
+      color: #888;
+      line-height: 1.4;
+    }
+
+    .coa-recommended-label {
+      font-size: 9px;
+      color: #00FF41;
+      letter-spacing: 2px;
+      margin-bottom: 4px;
+    }
+
+    /* ── METRICS BAR ─────────────────────────────── */
+    .metric-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 4px 0;
+      font-size: 11px;
+      border-bottom: 1px solid #111;
+    }
+
+    .metric-label { color: #555; }
+    .metric-value { color: #00FF41; }
+
+    /* ── MAP OVERLAYS ────────────────────────────── */
+    .map-badge {
+      position: absolute;
+      background: rgba(0,0,0,0.8);
+      border: 1px solid #333;
+      padding: 4px 8px;
+      font-size: 10px;
+      letter-spacing: 1px;
+      color: #888;
+      z-index: 10;
+    }
+
+    #map-classification {
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: #FF3B30;
+      border-color: #FF3B30;
+      letter-spacing: 3px;
+    }
+
+    #map-coords {
+      bottom: 8px;
+      left: 8px;
+    }
+
+    /* ── PROCESSING INDICATOR ────────────────────── */
+    #processing {
+      display: none;
+      position: fixed;
+      top: 56px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255,140,0,0.9);
+      color: #000;
+      padding: 6px 20px;
+      font-size: 11px;
+      letter-spacing: 3px;
+      z-index: 2000;
+    }
+
+    /* ── HUD MODE ────────────────────────────────── */
+    #hud-toggle {
+      position: fixed;
+      bottom: 16px;
+      right: 336px;
+      background: transparent;
+      border: 1px solid #333;
+      color: #555;
+      font-family: 'Courier New', monospace;
+      font-size: 10px;
+      letter-spacing: 2px;
+      padding: 6px 12px;
+      cursor: pointer;
+      z-index: 500;
+    }
+
+    body.hud-mode #sidebar { display: none; }
+    body.hud-mode #map { right: 0; }
+    body.hud-mode #hud-toggle { right: 16px; color: #00FF41; border-color: #00FF41; }
+
+    /* HUD minimal overlays */
+    #hud-overlay {
+      display: none;
+      position: fixed;
+      top: 56px;
+      left: 8px;
+      z-index: 200;
+    }
+
+    body.hud-mode #hud-overlay { display: block; }
+
+    .hud-stat {
+      background: rgba(0,0,0,0.7);
+      border-left: 2px solid #00FF41;
+      padding: 4px 10px;
+      margin-bottom: 4px;
+      font-size: 11px;
+      letter-spacing: 1px;
+    }
+
+    .hud-threat-alert {
+      border-left-color: #FF3B30;
+      color: #FF3B30;
+    }
+
+    /* Scrollbar */
+    #sidebar::-webkit-scrollbar { width: 4px; }
+    #sidebar::-webkit-scrollbar-track { background: #0a0a0a; }
+    #sidebar::-webkit-scrollbar-thumb { background: #1a1a1a; }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div id="header">
+  <div class="logo">AXIOM</div>
+  <div class="classification">UNCLASSIFIED</div>
+  <div class="time" id="clock">--:--:-- UTC</div>
+</div>
+
+<!-- MAP -->
+<div id="map">
+  <div class="map-badge" id="map-classification">UNCLASSIFIED</div>
+  <div class="map-badge" id="map-coords">---, ---</div>
+</div>
+
+<!-- HUD OVERLAY (visible in HUD mode) -->
+<div id="hud-overlay">
+  <div class="hud-stat">OP: OPERATION NIGHTFALL</div>
+  <div class="hud-stat">STATUS: ACTIVE</div>
+  <div class="hud-stat">DIST: 3.7km</div>
+  <div class="hud-stat hud-threat-alert">THREATS: 2 ACTIVE</div>
+  <div class="hud-stat">TARGETS: 3 / 1 RESTRICTED</div>
+</div>
+
+<!-- PROCESSING INDICATOR -->
+<div id="processing">AI PROCESSING REPLAN...</div>
+
+<!-- HUD TOGGLE -->
+<button id="hud-toggle" onclick="toggleHUD()">HUD MODE</button>
+
+<!-- SIDEBAR -->
+<div id="sidebar">
+
+  <!-- MISSION STATUS -->
+  <div class="panel">
+    <div class="panel-title">
+      MISSION STATUS
+      <span class="badge" id="mission-status-badge">ACTIVE</span>
+    </div>
+    <div class="mission-name" id="mission-name">OPERATION NIGHTFALL</div>
+    <div class="mission-meta">TYPE: DIRECT ACTION</div>
+    <div class="mission-meta">CLASSIFICATION: UNCLASSIFIED</div>
+    <div class="mission-meta" id="mission-dist">DISTANCE: Loading...</div>
+  </div>
+
+  <!-- METRICS -->
+  <div class="panel">
+    <div class="panel-title">OPERATIONAL METRICS</div>
+    <div class="metric-row">
+      <span class="metric-label">WAYPOINTS</span>
+      <span class="metric-value" id="metric-waypoints">-</span>
+    </div>
+    <div class="metric-row">
+      <span class="metric-label">ACTIVE THREATS</span>
+      <span class="metric-value" id="metric-threats" style="color:#FF3B30">-</span>
+    </div>
+    <div class="metric-row">
+      <span class="metric-label">TOTAL DISTANCE</span>
+      <span class="metric-value" id="metric-distance">-</span>
+    </div>
+    <div class="metric-row">
+      <span class="metric-label">MAP ZOOM</span>
+      <span class="metric-value" id="metric-zoom">-</span>
+    </div>
+  </div>
+
+  <!-- THREATS -->
+  <div class="panel">
+    <div class="panel-title">ACTIVE THREATS</div>
+    <div id="threat-list">
+      <div class="threat-item">
+        <div class="threat-dot threat-high"></div>
+        <div class="threat-name">ENEMY POSITION<br><span class="threat-conf">ISR_DRONE_ALPHA | 87%</span></div>
+      </div>
+      <div class="threat-item">
+        <div class="threat-dot threat-medium"></div>
+        <div class="threat-name">IED<br><span class="threat-conf">HUMINT | 65%</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TARGETS -->
+  <div class="panel">
+    <div class="panel-title">TARGET PRIORITY LIST</div>
+    <div id="target-list">
+      <div class="target-item">
+        <div class="target-header">
+          <span class="target-rank">[1]</span>
+          <span class="target-name">JACKPOT-1</span>
+          <span class="roe-badge roe-compliant">ROE OK</span>
+        </div>
+        <div class="target-score">HVT | Score: 84.5 | Conf: 91%</div>
+      </div>
+      <div class="target-item">
+        <div class="target-header">
+          <span class="target-rank">[2]</span>
+          <span class="target-name">JACKPOT-2</span>
+          <span class="roe-badge roe-compliant">ROE OK</span>
+        </div>
+        <div class="target-score">HVI | Score: 78.75 | Conf: 74%</div>
+      </div>
+      <div class="target-item">
+        <div class="target-header">
+          <span class="target-rank">[3]</span>
+          <span class="target-name">VEHICLE-ALPHA</span>
+          <span class="roe-badge roe-compliant">ROE OK</span>
+        </div>
+        <div class="target-score">VEHICLE | Score: 77.75 | Conf: 88%</div>
+      </div>
+      <div class="target-item">
+        <div class="target-header">
+          <span class="target-rank">[4]</span>
+          <span class="target-name">LOW-CONF-TARGET</span>
+          <span class="roe-badge roe-restricted">RESTRICTED</span>
+        </div>
+        <div class="target-score">PERSONNEL | Score: 61.5 | Conf: 35%</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI REPLAN -->
+  <div class="panel">
+    <div class="panel-title">AI MISSION COMMAND</div>
+    <button id="replan-btn" onclick="triggerReplan()">
+      TRIGGER AI REPLAN
+    </button>
+    <div id="coa-list" style="margin-top:10px;"></div>
+  </div>
+
+</div>
+
+<script>
+  // ── CONFIG ────────────────────────────────────────
+  const API_BASE = 'http://localhost:8000/api/v1';
+  const MISSION_ID = crypto.randomUUID();
+
+  // Demo JWT — in production this comes from auth flow
+  // This token is pre-generated for demo purposes
+  let AUTH_TOKEN = null;
+
+  // ── CLOCK ─────────────────────────────────────────
+  function updateClock() {
+    const now = new Date();
+    const utc = now.toISOString().replace('T', ' ').substring(0, 19) + ' UTC';
+    document.getElementById('clock').textContent = utc;
+  }
+  setInterval(updateClock, 1000);
+  updateClock();
+
+  // ── MAP INIT ──────────────────────────────────────
+  const map = new maplibregl.Map({
+    container: 'map',
+    style: {
+      version: 8,
+      sources: {
+        'osm': {
+          type: 'raster',
+          tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
+          tileSize: 256,
+          attribution: 'OpenStreetMap'
+        }
+      },
+      layers: [{ id: 'osm', type: 'raster', source: 'osm' }]
+    },
+    center: [69.165, 34.521],
+    zoom: 13,
+  });
+
+  // Dark map overlay for tactical feel
+  map.on('load', () => {
+    map.setPaintProperty('osm', 'raster-opacity', 0.4);
+    loadMissionData();
+  });
+
+  // Coords display
+  map.on('mousemove', (e) => {
+    const { lng, lat } = e.lngLat;
+    document.getElementById('map-coords').textContent =
+      lat.toFixed(4) + ', ' + lng.toFixed(4);
+  });
+
+  // Zoom metric
+  map.on('zoom', () => {
+    document.getElementById('metric-zoom').textContent =
+      map.getZoom().toFixed(1);
+  });
+
+  // ── LOAD MISSION DATA ─────────────────────────────
+  async function loadMissionData() {
+    try {
+      const token = await getToken();
+      const res = await fetch(
+        API_BASE + '/geo/mission/' + MISSION_ID + '/map',
+        { headers: { 'Authorization': 'Bearer ' + token } }
+      );
+
+      if (!res.ok) throw new Error('API unavailable');
+      const data = await res.json();
+
+      renderMapLayers(data);
+      updateMetrics(data);
+
+    } catch(e) {
+      console.log('Using demo data:', e.message);
+      renderDemoData();
+    }
+  }
+
+  // ── TOKEN ─────────────────────────────────────────
+  async function getToken() {
+    if (AUTH_TOKEN) return AUTH_TOKEN;
+    // In production: full auth flow
+    // For demo: fetch from local API
+    try {
+      const res = await fetch(API_BASE + '/health');
+      // Token would come from /auth/login in production
+      // For demo we use a static demo token approach
+    } catch(e) {}
+    return 'demo-token';
+  }
+
+  // ── RENDER MAP LAYERS ─────────────────────────────
+  function renderMapLayers(data) {
+    const layers = data.layers;
+
+    // Route line
+    if (map.getSource('route')) map.removeSource('route');
+    if (map.getLayer('route-line')) map.removeLayer('route-line');
+
+    map.addSource('route', {
+      type: 'geojson',
+      data: layers.route
+    });
+    map.addLayer({
+      id: 'route-line',
+      type: 'line',
+      source: 'route',
+      paint: {
+        'line-color': '#00FF41',
+        'line-width': 2,
+        'line-dasharray': [2, 1]
+      }
+    });
+
+    // Threat radius polygons
+    const threatFeatures = layers.threats.features.filter(
+      f => f.geometry.type === 'Polygon'
+    );
+    if (map.getSource('threat-radius')) map.removeSource('threat-radius');
+    if (map.getLayer('threat-fill')) map.removeLayer('threat-fill');
+    if (map.getLayer('threat-outline')) map.removeLayer('threat-outline');
+
+    map.addSource('threat-radius', {
+      type: 'geojson',
+      data: { type: 'FeatureCollection', features: threatFeatures }
+    });
+    map.addLayer({
+      id: 'threat-fill',
+      type: 'fill',
+      source: 'threat-radius',
+      paint: {
+        'fill-color': ['get', 'color'],
+        'fill-opacity': ['get', 'fill_opacity']
+      }
+    });
+    map.addLayer({
+      id: 'threat-outline',
+      type: 'line',
+      source: 'threat-radius',
+      paint: {
+        'line-color': ['get', 'color'],
+        'line-width': 1,
+        'line-opacity': 0.8
+      }
+    });
+
+    // Waypoint markers
+    layers.waypoints.features.forEach(f => {
+      const el = document.createElement('div');
+      el.style.cssText = `
+        width: 10px; height: 10px;
+        background: ${f.properties.color};
+        border: 1px solid #000;
+        border-radius: 2px;
+        cursor: pointer;
+      `;
+
+      new maplibregl.Marker({ element: el })
+        .setLngLat(f.geometry.coordinates)
+        .setPopup(new maplibregl.Popup({ closeButton: false }).setHTML(
+          '<div style="background:#0a0a0a;color:#00FF41;padding:8px;font-family:monospace;font-size:11px">' +
+          '<strong>' + f.properties.name + '</strong><br>' +
+          f.properties.type + '<br>' +
+          'SEQ: ' + f.properties.sequence +
+          '</div>'
+        ))
+        .addTo(map);
+    });
+
+    // Fit map to bounds
+    if (data.map_frame && data.map_frame.bounds) {
+      const b = data.map_frame.bounds;
+      map.fitBounds(b, { padding: 40, duration: 1000 });
+    }
+  }
+
+  function updateMetrics(data) {
+    document.getElementById('metric-waypoints').textContent = data.waypoint_count;
+    document.getElementById('metric-threats').textContent = data.threat_count + ' ACTIVE';
+    document.getElementById('metric-distance').textContent =
+      data.operational_distance.total_km + 'km';
+    document.getElementById('mission-dist').textContent =
+      'DISTANCE: ' + data.operational_distance.total_km + 'km';
+  }
+
+  // ── DEMO DATA (no API) ────────────────────────────
+  function renderDemoData() {
+    // Route
+    map.addSource('route', {
+      type: 'geojson',
+      data: {
+        type: 'Feature',
+        geometry: {
+          type: 'LineString',
+          coordinates: [
+            [69.1500, 34.5100],
+            [69.1580, 34.5180],
+            [69.1703, 34.5260],
+            [69.1800, 34.5320]
+          ]
+        }
+      }
+    });
+    map.addLayer({
+      id: 'route-line',
+      type: 'line',
+      source: 'route',
+      paint: { 'line-color': '#00FF41', 'line-width': 2, 'line-dasharray': [2,1] }
+    });
+
+    // Threat circles (simplified)
+    addThreatCircle(34.5190, 69.1600, 300, '#FF3B30', 0.2);
+    addThreatCircle(34.5230, 69.1650, 150, '#FF8C00', 0.15);
+
+    // Waypoint markers
+    const waypoints = [
+      { name: 'SP-ALPHA', type: 'start_point', coords: [69.1500, 34.5100], color: '#00FF41' },
+      { name: 'ORP-BRAVO', type: 'objective_rally_point', coords: [69.1580, 34.5180], color: '#fff' },
+      { name: 'OBJ-FALCON', type: 'objective', coords: [69.1703, 34.5260], color: '#FF3B30' },
+      { name: 'PZ-CHARLIE', type: 'pickup_zone', coords: [69.1800, 34.5320], color: '#00BFFF' },
+    ];
+
+    waypoints.forEach(wp => {
+      const el = document.createElement('div');
+      el.style.cssText = `
+        width: 10px; height: 10px;
+        background: ${wp.color};
+        border: 1px solid #000;
+        border-radius: 2px;
+        cursor: pointer;
+      `;
+      new maplibregl.Marker({ element: el })
+        .setLngLat(wp.coords)
+        .setPopup(new maplibregl.Popup({ closeButton: false }).setHTML(
+          '<div style="background:#0a0a0a;color:#00FF41;padding:8px;font-family:monospace;font-size:11px">' +
+          '<strong>' + wp.name + '</strong><br>' + wp.type + '</div>'
+        ))
+        .addTo(map);
+    });
+
+    document.getElementById('metric-waypoints').textContent = '4';
+    document.getElementById('metric-threats').textContent = '2 ACTIVE';
+    document.getElementById('metric-distance').textContent = '3.7km';
+    document.getElementById('metric-zoom').textContent = map.getZoom().toFixed(1);
+    document.getElementById('mission-dist').textContent = 'DISTANCE: 3.7km';
+  }
+
+  function addThreatCircle(lat, lon, radiusM, color, opacity) {
+    const id = 'threat-' + Math.random().toString(36).substr(2,6);
+    const coords = [];
+    for (let i = 0; i <= 64; i++) {
+      const angle = (i * 360 / 64) * Math.PI / 180;
+      const dlat = (radiusM / 111320) * Math.cos(angle);
+      const dlon = (radiusM / (111320 * Math.cos(lat * Math.PI / 180))) * Math.sin(angle);
+      coords.push([lon + dlon, lat + dlat]);
+    }
+
+    map.addSource(id, {
+      type: 'geojson',
+      data: { type: 'Feature', geometry: { type: 'Polygon', coordinates: [coords] } }
+    });
+    map.addLayer({ id: id + '-fill', type: 'fill', source: id,
+      paint: { 'fill-color': color, 'fill-opacity': opacity } });
+    map.addLayer({ id: id + '-line', type: 'line', source: id,
+      paint: { 'line-color': color, 'line-width': 1, 'line-opacity': 0.7 } });
+  }
+
+  // ── AI REPLAN ─────────────────────────────────────
+  async function triggerReplan() {
+    const btn = document.getElementById('replan-btn');
+    const coaList = document.getElementById('coa-list');
+    const processing = document.getElementById('processing');
+
+    btn.classList.add('loading');
+    btn.textContent = 'PROCESSING...';
+    processing.style.display = 'block';
+    coaList.innerHTML = '';
+
+    await new Promise(r => setTimeout(r, 800)); // Dramatic pause
+
+    try {
+      const token = await getToken();
+      const res = await fetch(API_BASE + '/ai/replan', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + token,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ mission_id: MISSION_ID })
+      });
+      const data = await res.json();
+      if (data.coas) renderCoAs(data);
+      else renderDemoCoAs();
+    } catch(e) {
+      renderDemoCoAs();
+    }
+
+    btn.classList.remove('loading');
+    btn.textContent = 'TRIGGER AI REPLAN';
+    processing.style.display = 'none';
+  }
+
+  function renderCoAs(data) {
+    const coaList = document.getElementById('coa-list');
+    const recommended = data.recommended_coa || '';
+
+    coaList.innerHTML = '<div style="color:#FF8C00;font-size:10px;letter-spacing:2px;margin-bottom:8px">REPLAN COMPLETE — ' + data.processing_ms + 'ms</div>';
+
+    data.coas.forEach(coa => {
+      const isRec = coa.title === recommended;
+      const riskClass = 'risk-' + (coa.risk_level || 'medium').toLowerCase();
+      coaList.innerHTML += `
+        <div class="coa-item ${isRec ? 'recommended' : ''}">
+          ${isRec ? '<div class="coa-recommended-label">RECOMMENDED</div>' : ''}
+          <div class="coa-title">${coa.title}</div>
+          <span class="coa-risk ${riskClass}">${coa.risk_level}</span>
+          <div class="coa-summary">${coa.summary}</div>
+        </div>
+      `;
+    });
+
+    coaList.innerHTML += '<div style="color:#FF3B30;font-size:10px;letter-spacing:1px;margin-top:8px">COMMANDER DECISION REQUIRED</div>';
+  }
+
+  function renderDemoCoAs() {
+    renderCoAs({
+      processing_ms: 2.3,
+      recommended_coa: 'CoA 1 — Northern Bypass',
+      coas: [
+        { title: 'CoA 1 — Northern Bypass', risk_level: 'MEDIUM',
+          summary: 'Reroute north of threat axis, adding 4km. Maintains primary objective.' },
+        { title: 'CoA 2 — Suppress and Advance', risk_level: 'HIGH',
+          summary: 'Fix threat with ISR, advance on original route. Faster but higher contact probability.' },
+        { title: 'CoA 3 — Hold and Reassess', risk_level: 'LOW',
+          summary: 'Hold at ORP, gather additional ISR. Lowest risk, may compromise timing.' },
+      ]
+    });
+  }
+
+  // ── HUD MODE ──────────────────────────────────────
+  function toggleHUD() {
+    document.body.classList.toggle('hud-mode');
+    const btn = document.getElementById('hud-toggle');
+    btn.textContent = document.body.classList.contains('hud-mode')
+      ? 'FULL VIEW' : 'HUD MODE';
+    setTimeout(() => map.resize(), 100);
+  }
+</script>
+</body>
+</html>
