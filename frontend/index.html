@@ -765,6 +765,21 @@
   }
 
   // ── AI REPLAN ─────────────────────────────────────
+  // Generate a random threat near the route for each replan
+  function randomThreat() {
+    const baseLat = 34.510 + Math.random() * 0.025;
+    const baseLon = 69.150 + Math.random() * 0.025;
+    const types = ['ENEMY POSITION', 'IED', 'PATROL', 'OBSERVATION POST', 'VEHICLE'];
+    const levels = ['MEDIUM', 'HIGH', 'CRITICAL'];
+    return {
+      lat: baseLat, lon: baseLon,
+      type: types[Math.floor(Math.random() * types.length)],
+      level: levels[Math.floor(Math.random() * levels.length)],
+      radius: 100 + Math.floor(Math.random() * 400),
+      confidence: 0.55 + Math.random() * 0.40,
+    };
+  }
+
   async function triggerReplan() {
     const btn = document.getElementById('replan-btn');
     const coaList = document.getElementById('coa-list');
@@ -776,6 +791,24 @@
     coaList.innerHTML = '';
 
     await new Promise(r => setTimeout(r, 800)); // Dramatic pause
+
+    // Generate a new random threat each replan cycle
+    const newThreat = randomThreat();
+    addThreatCircle(newThreat.lat, newThreat.lon, newThreat.radius,
+      newThreat.level === 'CRITICAL' ? '#8B0000' :
+      newThreat.level === 'HIGH' ? '#FF3B30' : '#FF8C00', 0.2);
+
+    // Update threat list in sidebar
+    const threatList = document.getElementById('threat-list');
+    const conf = (newThreat.confidence * 100).toFixed(0);
+    const dotClass = newThreat.level === 'HIGH' || newThreat.level === 'CRITICAL'
+      ? 'threat-high' : 'threat-medium';
+    threatList.innerHTML += `
+      <div class="threat-item" style="border-left:2px solid #FF3B30;padding-left:6px">
+        <div class="threat-dot ${dotClass}"></div>
+        <div class="threat-name">${newThreat.type} [NEW]<br>
+          <span class="threat-conf">SENSOR | ${conf}%</span></div>
+      </div>`;
 
     try {
       const token = await getToken();
@@ -822,16 +855,21 @@
   }
 
   function renderDemoCoAs() {
+    const bypass_dirs = ['Northern', 'Southern', 'Eastern', 'Western'];
+    const dir = bypass_dirs[Math.floor(Math.random() * bypass_dirs.length)];
+    const delta = 8 + Math.floor(Math.random() * 20);
+    const hold = 20 + Math.floor(Math.random() * 25);
+    const ms = (1.8 + Math.random() * 2.5).toFixed(1);
     renderCoAs({
-      processing_ms: 2.3,
-      recommended_coa: 'CoA 1 — Northern Bypass',
+      processing_ms: ms,
+      recommended_coa: 'CoA 1 — ' + dir + ' Bypass',
       coas: [
-        { title: 'CoA 1 — Northern Bypass', risk_level: 'MEDIUM',
-          summary: 'Reroute north of threat axis, adding 4km. Maintains primary objective.' },
+        { title: 'CoA 1 — ' + dir + ' Bypass', risk_level: 'MEDIUM',
+          summary: 'Reroute ' + dir.toLowerCase() + ' of threat axis, adding ' + delta + ' min. Maintains primary objective while avoiding threat radius.' },
         { title: 'CoA 2 — Suppress and Advance', risk_level: 'HIGH',
-          summary: 'Fix threat with ISR, advance on original route. Faster but higher contact probability.' },
+          summary: 'Fix threat with ISR asset RAVEN-2, advance on original route under suppression. Higher contact probability.' },
         { title: 'CoA 3 — Hold and Reassess', risk_level: 'LOW',
-          summary: 'Hold at ORP, gather additional ISR. Lowest risk, may compromise timing.' },
+          summary: 'Hold at current ORP for ' + hold + ' min, gather additional ISR on new threat. Lowest risk, may compress mission window.' },
       ]
     });
   }
