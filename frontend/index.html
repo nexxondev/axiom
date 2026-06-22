@@ -535,12 +535,8 @@ const map = new maplibregl.Map({
       osm: { type:'raster',
         tiles:['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
         tileSize:256, attribution:'OpenStreetMap' },
-      terrain: { type:'raster-dem',
-        tiles:['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'],
-        tileSize:256, encoding:'terrarium' },
     },
-    layers: [{ id:'osm', type:'raster', source:'osm' }],
-    terrain: null,
+    layers: [{ id:'osm', type:'raster', source:'osm', paint: {'raster-opacity': 0.4} }],
   },
   center: [69.165, 34.521],
   zoom: 13,
@@ -552,7 +548,13 @@ let buildingsVisible = false;
 let is3D = false;
 
 map.on('load', () => {
-  map.setPaintProperty('osm', 'raster-opacity', 0.4);
+  // Add terrain source after load
+  map.addSource('terrain', {
+    type: 'raster-dem',
+    tiles: ['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'],
+    tileSize: 256,
+    encoding: 'terrarium',
+  });
   renderDemoData();
   pushAlert('AXIOM ONLINE — OPERATION NIGHTFALL ACTIVE', 'info');
   setTimeout(() => pushAlert('THREAT DETECTED: ENEMY POSITION — HIGH CONFIDENCE', 'critical'), 1500);
