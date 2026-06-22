@@ -22,7 +22,7 @@
       position: fixed;
       top: 0; left: 0; right: 0;
       height: 48px;
-      background: rgba(0,0,0,0.85);
+      background: rgba(0,0,0,0.92);
       border-bottom: 1px solid #00FF41;
       display: flex;
       align-items: center;
@@ -30,252 +30,72 @@
       padding: 0 16px;
       z-index: 1000;
     }
+    #header .logo { color: #00FF41; font-size: 18px; font-weight: bold; letter-spacing: 4px; }
+    #header .classification { color: #FF3B30; font-size: 11px; letter-spacing: 2px; font-weight: bold; }
+    #header .time { color: #888; font-size: 12px; letter-spacing: 1px; }
 
-    #header .logo {
-      color: #00FF41;
-      font-size: 18px;
-      font-weight: bold;
-      letter-spacing: 4px;
+    /* ── ALERT BANNER ────────────────────────────── */
+    #alert-banner {
+      position: fixed;
+      top: 48px; left: 0; right: 320px;
+      z-index: 900;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
     }
-
-    #header .classification {
-      color: #FF3B30;
+    .alert-bar {
+      padding: 5px 14px;
       font-size: 11px;
       letter-spacing: 2px;
       font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      animation: slideIn 0.3s ease;
     }
-
-    #header .time {
-      color: #888;
-      font-size: 12px;
-      letter-spacing: 1px;
+    @keyframes slideIn { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:translateY(0); } }
+    .alert-critical {
+      background: rgba(180,0,0,0.92);
+      color: #fff;
+      border-bottom: 1px solid #FF3B30;
     }
+    .alert-critical .alert-dot { animation: blink 0.7s infinite; }
+    @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0;} }
+    .alert-warning { background: rgba(180,100,0,0.85); color: #fff; }
+    .alert-info { background: rgba(0,80,20,0.75); color: #00FF41; }
+    .alert-dot { width:8px; height:8px; border-radius:50%; background:currentColor; flex-shrink:0; }
 
     /* ── MAP ─────────────────────────────────────── */
     #map {
       position: fixed;
-      top: 48px;
-      left: 0;
-      right: 320px;
-      bottom: 0;
+      top: 48px; left: 0; right: 320px; bottom: 0;
+      transition: right 0.2s;
     }
 
-    /* ── SIDEBAR ─────────────────────────────────── */
-    #sidebar {
-      position: fixed;
-      top: 48px;
-      right: 0;
-      width: 320px;
-      bottom: 0;
-      background: rgba(10,10,10,0.95);
-      border-left: 1px solid #1a1a1a;
-      overflow-y: auto;
-      z-index: 100;
-    }
-
-    .panel {
-      border-bottom: 1px solid #1a1a1a;
-      padding: 12px;
-    }
-
-    .panel-title {
-      color: #00FF41;
-      font-size: 10px;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      margin-bottom: 10px;
+    /* ── MAP CONTROLS ────────────────────────────── */
+    #map-controls {
+      position: absolute;
+      bottom: 40px; left: 10px;
       display: flex;
-      align-items: center;
-      justify-content: space-between;
+      flex-direction: column;
+      gap: 4px;
+      z-index: 200;
     }
-
-    .panel-title .badge {
-      background: #00FF41;
-      color: #000;
-      font-size: 9px;
-      padding: 1px 6px;
-      border-radius: 2px;
-    }
-
-    /* ── MISSION STATUS ───────────────────────────── */
-    .mission-name {
-      font-size: 14px;
-      color: #fff;
-      font-weight: bold;
-      margin-bottom: 6px;
-    }
-
-    .mission-meta {
-      font-size: 11px;
-      color: #666;
-      margin-bottom: 4px;
-    }
-
-    .status-chip {
-      display: inline-block;
-      padding: 2px 8px;
-      border-radius: 2px;
-      font-size: 10px;
-      font-weight: bold;
-      letter-spacing: 1px;
-      margin-top: 6px;
-    }
-
-    .status-active { background: #00FF41; color: #000; }
-    .status-planning { background: #FFD700; color: #000; }
-    .status-aborted { background: #FF3B30; color: #fff; }
-
-    /* ── THREAT LIST ─────────────────────────────── */
-    .threat-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 6px 0;
-      border-bottom: 1px solid #111;
-      font-size: 11px;
-    }
-
-    .threat-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-
-    .threat-high { background: #FF3B30; }
-    .threat-medium { background: #FF8C00; }
-    .threat-low { background: #FFD700; }
-    .threat-critical { background: #8B0000; }
-
-    .threat-name { color: #ccc; flex: 1; }
-    .threat-conf { color: #555; font-size: 10px; }
-
-    /* ── TARGET LIST ─────────────────────────────── */
-    .target-item {
-      padding: 8px 0;
-      border-bottom: 1px solid #111;
-      font-size: 11px;
-    }
-
-    .target-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 3px;
-    }
-
-    .target-rank {
-      color: #444;
-      font-size: 10px;
-      width: 20px;
-    }
-
-    .target-name { color: #fff; font-weight: bold; flex: 1; }
-
-    .roe-badge {
-      font-size: 9px;
-      padding: 1px 5px;
-      border-radius: 2px;
-      font-weight: bold;
-    }
-
-    .roe-compliant { background: #00FF41; color: #000; }
-    .roe-restricted { background: #FF3B30; color: #fff; }
-    .roe-hold { background: #FF8C00; color: #000; }
-
-    .target-score {
-      color: #555;
-      font-size: 10px;
-      margin-left: 20px;
-    }
-
-    /* ── REPLAN BUTTON ───────────────────────────── */
-    #replan-btn {
-      width: 100%;
-      padding: 12px;
-      background: transparent;
-      border: 1px solid #FF8C00;
-      color: #FF8C00;
-      font-family: 'Courier New', monospace;
-      font-size: 11px;
-      letter-spacing: 3px;
-      cursor: pointer;
-      text-transform: uppercase;
-      transition: all 0.2s;
-      margin-top: 8px;
-    }
-
-    #replan-btn:hover {
-      background: #FF8C00;
-      color: #000;
-    }
-
-    #replan-btn.loading {
-      border-color: #555;
-      color: #555;
-      cursor: not-allowed;
-    }
-
-    /* ── COA PANEL ───────────────────────────────── */
-    .coa-item {
-      padding: 8px;
-      border: 1px solid #1a1a1a;
-      margin-bottom: 6px;
-      border-radius: 2px;
-    }
-
-    .coa-item.recommended {
-      border-color: #00FF41;
-    }
-
-    .coa-title {
-      font-size: 11px;
-      color: #fff;
-      font-weight: bold;
-      margin-bottom: 3px;
-    }
-
-    .coa-risk {
-      font-size: 9px;
-      padding: 1px 5px;
-      border-radius: 2px;
-      font-weight: bold;
-      display: inline-block;
-      margin-bottom: 5px;
-    }
-
-    .risk-low { background: #00FF41; color: #000; }
-    .risk-medium { background: #FFD700; color: #000; }
-    .risk-high { background: #FF3B30; color: #fff; }
-    .risk-critical { background: #8B0000; color: #fff; }
-
-    .coa-summary {
-      font-size: 10px;
+    .map-btn {
+      background: rgba(0,0,0,0.82);
+      border: 1px solid #333;
       color: #888;
-      line-height: 1.4;
-    }
-
-    .coa-recommended-label {
+      font-family: 'Courier New', monospace;
       font-size: 9px;
-      color: #00FF41;
-      letter-spacing: 2px;
-      margin-bottom: 4px;
+      letter-spacing: 1px;
+      padding: 5px 10px;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-align: left;
     }
+    .map-btn:hover { border-color: #00FF41; color: #00FF41; }
+    .map-btn.active { border-color: #00FF41; color: #00FF41; background: rgba(0,255,65,0.08); }
 
-    /* ── METRICS BAR ─────────────────────────────── */
-    .metric-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 4px 0;
-      font-size: 11px;
-      border-bottom: 1px solid #111;
-    }
-
-    .metric-label { color: #555; }
-    .metric-value { color: #00FF41; }
-
-    /* ── MAP OVERLAYS ────────────────────────────── */
     .map-badge {
       position: absolute;
       background: rgba(0,0,0,0.8);
@@ -286,82 +106,194 @@
       color: #888;
       z-index: 10;
     }
+    #map-classification { bottom: 8px; left: 50%; transform: translateX(-50%);
+      color: #FF3B30; border-color: #FF3B30; letter-spacing: 3px; }
+    #map-coords { bottom: 8px; right: 8px; }
 
-    #map-classification {
-      bottom: 8px;
-      left: 50%;
-      transform: translateX(-50%);
-      color: #FF3B30;
-      border-color: #FF3B30;
-      letter-spacing: 3px;
-    }
-
-    #map-coords {
-      bottom: 8px;
-      left: 8px;
-    }
-
-    /* ── PROCESSING INDICATOR ────────────────────── */
-    #processing {
-      display: none;
+    /* ── SIDEBAR ─────────────────────────────────── */
+    #sidebar {
       position: fixed;
-      top: 56px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(255,140,0,0.9);
-      color: #000;
-      padding: 6px 20px;
-      font-size: 11px;
-      letter-spacing: 3px;
-      z-index: 2000;
+      top: 48px; right: 0; width: 320px; bottom: 0;
+      background: rgba(10,10,10,0.97);
+      border-left: 1px solid #1a1a1a;
+      overflow-y: auto;
+      z-index: 100;
+    }
+    .panel { border-bottom: 1px solid #1a1a1a; padding: 12px; }
+    .panel-title {
+      color: #00FF41; font-size: 10px; letter-spacing: 3px;
+      text-transform: uppercase; margin-bottom: 10px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .panel-title .badge {
+      background: #00FF41; color: #000;
+      font-size: 9px; padding: 1px 6px; border-radius: 2px;
+    }
+    .badge-alert { background: #FF3B30 !important; color: #fff !important; animation: blink 1s infinite; }
+
+    /* ── MISSION STATUS ───────────────────────────── */
+    .mission-name { font-size: 14px; color: #fff; font-weight: bold; margin-bottom: 6px; }
+    .mission-meta { font-size: 11px; color: #666; margin-bottom: 4px; }
+
+    /* ── METRICS ──────────────────────────────────── */
+    .metric-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 4px 0; font-size: 11px; border-bottom: 1px solid #111;
+    }
+    .metric-label { color: #555; }
+    .metric-value { color: #00FF41; }
+
+    /* ── THREAT LIST ─────────────────────────────── */
+    .threat-item {
+      padding: 7px 0; border-bottom: 1px solid #111; font-size: 11px;
+    }
+    .threat-header { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+    .threat-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .threat-high { background: #FF3B30; }
+    .threat-medium { background: #FF8C00; }
+    .threat-low { background: #FFD700; }
+    .threat-critical { background: #8B0000; animation: blink 0.8s infinite; }
+    .threat-name { color: #ccc; flex: 1; }
+
+    /* Confidence band */
+    .conf-bar {
+      height: 3px; border-radius: 1px; margin-top: 3px;
+      transition: width 0.3s;
+    }
+    .conf-high { background: #00FF41; }
+    .conf-medium { background: #FF8C00; }
+    .conf-low { background: #FF3B30; }
+
+    .freshness {
+      font-size: 9px; margin-top: 3px;
+      letter-spacing: 1px;
+    }
+    .fresh-high { color: #00FF41; }
+    .fresh-medium { color: #FF8C00; }
+    .fresh-stale { color: #FF3B30; }
+
+    /* ── TARGET LIST ─────────────────────────────── */
+    .target-item { padding: 8px 0; border-bottom: 1px solid #111; font-size: 11px; }
+    .target-header {
+      display: flex; align-items: center;
+      justify-content: space-between; margin-bottom: 3px;
+    }
+    .target-rank { color: #444; font-size: 10px; width: 20px; }
+    .target-name { color: #fff; font-weight: bold; flex: 1; }
+    .roe-badge {
+      font-size: 9px; padding: 1px 5px;
+      border-radius: 2px; font-weight: bold;
+    }
+    .roe-compliant { background: #00FF41; color: #000; }
+    .roe-restricted { background: #FF3B30; color: #fff; }
+    .roe-hold { background: #FF8C00; color: #000; }
+
+    .target-score-row {
+      display: flex; align-items: center;
+      gap: 6px; margin-left: 20px; margin-top: 3px;
+    }
+    .target-meta { color: #555; font-size: 10px; }
+
+    /* Confidence indicator dot */
+    .conf-dot {
+      width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+    }
+    .conf-dot-high { background: #00FF41; }
+    .conf-dot-medium { background: #FF8C00; }
+    .conf-dot-low { background: #FF3B30; }
+
+    /* ── REPLAN BUTTON ───────────────────────────── */
+    #replan-btn {
+      width: 100%; padding: 12px;
+      background: transparent;
+      border: 1px solid #FF8C00;
+      color: #FF8C00;
+      font-family: 'Courier New', monospace;
+      font-size: 11px; letter-spacing: 3px;
+      cursor: pointer; text-transform: uppercase;
+      transition: all 0.2s; margin-top: 8px;
+    }
+    #replan-btn:hover { background: #FF8C00; color: #000; }
+    #replan-btn.loading { border-color: #444; color: #444; cursor: not-allowed; }
+
+    /* ── COA PANEL ───────────────────────────────── */
+    .coa-item {
+      padding: 10px; border: 1px solid #1a1a1a;
+      margin-bottom: 6px; border-radius: 2px;
+    }
+    .coa-item.recommended { border-color: #00FF41; }
+    .coa-recommended-label { font-size: 9px; color: #00FF41; letter-spacing: 2px; margin-bottom: 4px; }
+    .coa-title { font-size: 11px; color: #fff; font-weight: bold; margin-bottom: 4px; }
+
+    .coa-risk {
+      font-size: 9px; padding: 1px 5px; border-radius: 2px;
+      font-weight: bold; display: inline-block; margin-bottom: 6px;
+    }
+    .risk-low { background: #00FF41; color: #000; }
+    .risk-medium { background: #FFD700; color: #000; }
+    .risk-high { background: #FF3B30; color: #fff; }
+    .risk-critical { background: #8B0000; color: #fff; }
+
+    /* Success probability bar */
+    .success-row {
+      display: flex; align-items: center;
+      gap: 8px; margin-bottom: 6px;
+    }
+    .success-label { font-size: 9px; color: #555; white-space: nowrap; }
+    .success-bar-bg {
+      flex: 1; height: 4px;
+      background: #1a1a1a; border-radius: 2px; overflow: hidden;
+    }
+    .success-bar-fill { height: 100%; border-radius: 2px; transition: width 0.5s; }
+    .success-value { font-size: 10px; color: #00FF41; white-space: nowrap; }
+
+    /* Explainability bullets */
+    .explain-list { margin: 0; padding: 0; list-style: none; }
+    .explain-list li {
+      font-size: 10px; color: #888;
+      padding: 2px 0; padding-left: 12px;
+      position: relative; line-height: 1.4;
+    }
+    .explain-list li::before {
+      content: "✓"; position: absolute; left: 0;
+      color: #00FF41; font-size: 9px;
+    }
+
+    .coa-summary { font-size: 10px; color: #666; margin-top: 5px; line-height: 1.4; }
+    .coa-decision { color: #FF3B30; font-size: 10px; letter-spacing: 1px; margin-top: 8px; }
+
+    /* ── PROCESSING ──────────────────────────────── */
+    #processing {
+      display: none; position: fixed;
+      top: 56px; left: 50%; transform: translateX(-50%);
+      background: rgba(255,140,0,0.92);
+      color: #000; padding: 6px 20px;
+      font-size: 11px; letter-spacing: 3px; z-index: 2000;
     }
 
     /* ── HUD MODE ────────────────────────────────── */
     #hud-toggle {
-      position: fixed;
-      bottom: 16px;
-      right: 336px;
-      background: transparent;
-      border: 1px solid #333;
-      color: #555;
-      font-family: 'Courier New', monospace;
-      font-size: 10px;
-      letter-spacing: 2px;
-      padding: 6px 12px;
-      cursor: pointer;
-      z-index: 500;
+      position: fixed; bottom: 16px; right: 336px;
+      background: transparent; border: 1px solid #333;
+      color: #555; font-family: 'Courier New', monospace;
+      font-size: 10px; letter-spacing: 2px;
+      padding: 6px 12px; cursor: pointer; z-index: 500;
     }
-
     body.hud-mode #sidebar { display: none; }
     body.hud-mode #map { right: 0; }
     body.hud-mode #hud-toggle { right: 16px; color: #00FF41; border-color: #00FF41; }
+    body.hud-mode #alert-banner { right: 0; }
 
-    /* HUD minimal overlays */
-    #hud-overlay {
-      display: none;
-      position: fixed;
-      top: 56px;
-      left: 8px;
-      z-index: 200;
-    }
-
+    #hud-overlay { display: none; position: fixed; top: 56px; left: 8px; z-index: 200; }
     body.hud-mode #hud-overlay { display: block; }
-
     .hud-stat {
-      background: rgba(0,0,0,0.7);
+      background: rgba(0,0,0,0.75);
       border-left: 2px solid #00FF41;
-      padding: 4px 10px;
-      margin-bottom: 4px;
-      font-size: 11px;
-      letter-spacing: 1px;
+      padding: 4px 10px; margin-bottom: 4px;
+      font-size: 11px; letter-spacing: 1px;
     }
+    .hud-alert { border-left-color: #FF3B30; color: #FF3B30; }
 
-    .hud-threat-alert {
-      border-left-color: #FF3B30;
-      color: #FF3B30;
-    }
-
-    /* Scrollbar */
     #sidebar::-webkit-scrollbar { width: 4px; }
     #sidebar::-webkit-scrollbar-track { background: #0a0a0a; }
     #sidebar::-webkit-scrollbar-thumb { background: #1a1a1a; }
@@ -376,22 +308,30 @@
   <div class="time" id="clock">--:--:-- UTC</div>
 </div>
 
+<!-- ALERT BANNER -->
+<div id="alert-banner"></div>
+
 <!-- MAP -->
 <div id="map">
+  <div id="map-controls">
+    <button class="map-btn active" id="btn-2d" onclick="setView('2d')">2D TACTICAL</button>
+    <button class="map-btn" id="btn-3d" onclick="setView('3d')">3D TERRAIN</button>
+    <button class="map-btn" id="btn-buildings" onclick="toggleBuildings()">BUILDINGS</button>
+  </div>
   <div class="map-badge" id="map-classification">UNCLASSIFIED</div>
-  <div class="map-badge" id="map-coords">---, ---</div>
+  <div class="map-badge" id="map-coords" style="bottom:8px;right:8px">---, ---</div>
 </div>
 
-<!-- HUD OVERLAY (visible in HUD mode) -->
+<!-- HUD OVERLAY -->
 <div id="hud-overlay">
   <div class="hud-stat">OP: OPERATION NIGHTFALL</div>
   <div class="hud-stat">STATUS: ACTIVE</div>
   <div class="hud-stat">DIST: 3.7km</div>
-  <div class="hud-stat hud-threat-alert">THREATS: 2 ACTIVE</div>
-  <div class="hud-stat">TARGETS: 3 / 1 RESTRICTED</div>
+  <div class="hud-stat hud-alert">THREATS: 2 ACTIVE</div>
+  <div class="hud-stat">PRIORITY: JACKPOT-1</div>
 </div>
 
-<!-- PROCESSING INDICATOR -->
+<!-- PROCESSING -->
 <div id="processing">AI PROCESSING REPLAN...</div>
 
 <!-- HUD TOGGLE -->
@@ -404,12 +344,12 @@
   <div class="panel">
     <div class="panel-title">
       MISSION STATUS
-      <span class="badge" id="mission-status-badge">ACTIVE</span>
+      <span class="badge" id="mission-badge">ACTIVE</span>
     </div>
-    <div class="mission-name" id="mission-name">OPERATION NIGHTFALL</div>
+    <div class="mission-name">OPERATION NIGHTFALL</div>
     <div class="mission-meta">TYPE: DIRECT ACTION</div>
     <div class="mission-meta">CLASSIFICATION: UNCLASSIFIED</div>
-    <div class="mission-meta" id="mission-dist">DISTANCE: Loading...</div>
+    <div class="mission-meta" id="mission-dist">DISTANCE: 3.7km</div>
   </div>
 
   <!-- METRICS -->
@@ -417,471 +357,450 @@
     <div class="panel-title">OPERATIONAL METRICS</div>
     <div class="metric-row">
       <span class="metric-label">WAYPOINTS</span>
-      <span class="metric-value" id="metric-waypoints">-</span>
+      <span class="metric-value">4</span>
     </div>
     <div class="metric-row">
       <span class="metric-label">ACTIVE THREATS</span>
-      <span class="metric-value" id="metric-threats" style="color:#FF3B30">-</span>
+      <span class="metric-value" style="color:#FF3B30" id="metric-threats">2 ACTIVE</span>
     </div>
     <div class="metric-row">
       <span class="metric-label">TOTAL DISTANCE</span>
-      <span class="metric-value" id="metric-distance">-</span>
+      <span class="metric-value">3.7km</span>
     </div>
     <div class="metric-row">
-      <span class="metric-label">MAP ZOOM</span>
-      <span class="metric-value" id="metric-zoom">-</span>
+      <span class="metric-label">MISSION SUCCESS EST.</span>
+      <span class="metric-value" id="metric-success">84%</span>
     </div>
   </div>
 
   <!-- THREATS -->
   <div class="panel">
-    <div class="panel-title">ACTIVE THREATS</div>
-    <div id="threat-list">
-      <div class="threat-item">
-        <div class="threat-dot threat-high"></div>
-        <div class="threat-name">ENEMY POSITION<br><span class="threat-conf">ISR_DRONE_ALPHA | 87%</span></div>
-      </div>
-      <div class="threat-item">
-        <div class="threat-dot threat-medium"></div>
-        <div class="threat-name">IED<br><span class="threat-conf">HUMINT | 65%</span></div>
-      </div>
+    <div class="panel-title">
+      ACTIVE THREATS
+      <span class="badge badge-alert" id="threat-badge">2</span>
     </div>
+    <div id="threat-list"></div>
   </div>
 
   <!-- TARGETS -->
   <div class="panel">
     <div class="panel-title">TARGET PRIORITY LIST</div>
-    <div id="target-list">
-      <div class="target-item">
-        <div class="target-header">
-          <span class="target-rank">[1]</span>
-          <span class="target-name">JACKPOT-1</span>
-          <span class="roe-badge roe-compliant">ROE OK</span>
-        </div>
-        <div class="target-score">HVT | Score: 84.5 | Conf: 91%</div>
-      </div>
-      <div class="target-item">
-        <div class="target-header">
-          <span class="target-rank">[2]</span>
-          <span class="target-name">JACKPOT-2</span>
-          <span class="roe-badge roe-compliant">ROE OK</span>
-        </div>
-        <div class="target-score">HVI | Score: 78.75 | Conf: 74%</div>
-      </div>
-      <div class="target-item">
-        <div class="target-header">
-          <span class="target-rank">[3]</span>
-          <span class="target-name">VEHICLE-ALPHA</span>
-          <span class="roe-badge roe-compliant">ROE OK</span>
-        </div>
-        <div class="target-score">VEHICLE | Score: 77.75 | Conf: 88%</div>
-      </div>
-      <div class="target-item">
-        <div class="target-header">
-          <span class="target-rank">[4]</span>
-          <span class="target-name">LOW-CONF-TARGET</span>
-          <span class="roe-badge roe-restricted">RESTRICTED</span>
-        </div>
-        <div class="target-score">PERSONNEL | Score: 61.5 | Conf: 35%</div>
-      </div>
-    </div>
+    <div id="target-list"></div>
   </div>
 
   <!-- AI REPLAN -->
   <div class="panel">
     <div class="panel-title">AI MISSION COMMAND</div>
-    <button id="replan-btn" onclick="triggerReplan()">
-      TRIGGER AI REPLAN
-    </button>
-    <div id="coa-list" style="margin-top:10px;"></div>
+    <button id="replan-btn" onclick="triggerReplan()">TRIGGER AI REPLAN</button>
+    <div id="coa-list" style="margin-top:10px"></div>
   </div>
 
 </div>
 
 <script>
-  // ── CONFIG ────────────────────────────────────────
-  const API_BASE = 'http://localhost:8000/api/v1';
-  const MISSION_ID = crypto.randomUUID();
+const API_BASE = 'http://localhost:8000/api/v1';
+const MISSION_ID = crypto.randomUUID();
 
-  // Demo JWT — in production this comes from auth flow
-  // This token is pre-generated for demo purposes
-  let AUTH_TOKEN = null;
+// ── CLOCK ─────────────────────────────────────────
+function updateClock() {
+  document.getElementById('clock').textContent =
+    new Date().toISOString().replace('T',' ').substring(0,19) + ' UTC';
+}
+setInterval(updateClock, 1000);
+updateClock();
 
-  // ── CLOCK ─────────────────────────────────────────
-  function updateClock() {
-    const now = new Date();
-    const utc = now.toISOString().replace('T', ' ').substring(0, 19) + ' UTC';
-    document.getElementById('clock').textContent = utc;
+// ── ALERT SYSTEM ──────────────────────────────────
+const alertQueue = [];
+
+function pushAlert(message, level='info') {
+  const banner = document.getElementById('alert-banner');
+  const div = document.createElement('div');
+  div.className = `alert-bar alert-${level}`;
+  div.innerHTML = `<span class="alert-dot"></span>${message}`;
+  banner.appendChild(div);
+  alertQueue.push(div);
+  if (level !== 'critical') {
+    setTimeout(() => { div.remove(); }, 6000);
   }
-  setInterval(updateClock, 1000);
-  updateClock();
+}
 
-  // ── MAP INIT ──────────────────────────────────────
-  const map = new maplibregl.Map({
-    container: 'map',
-    style: {
-      version: 8,
-      sources: {
-        'osm': {
-          type: 'raster',
-          tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
-          tileSize: 256,
-          attribution: 'OpenStreetMap'
-        }
-      },
-      layers: [{ id: 'osm', type: 'raster', source: 'osm' }]
-    },
-    center: [69.165, 34.521],
-    zoom: 13,
-  });
+// ── CONFIDENCE HELPERS ─────────────────────────────
+function confColor(c) {
+  if (c >= 0.90) return '#00FF41';
+  if (c >= 0.60) return '#FF8C00';
+  return '#FF3B30';
+}
+function confDotClass(c) {
+  if (c >= 0.90) return 'conf-dot-high';
+  if (c >= 0.60) return 'conf-dot-medium';
+  return 'conf-dot-low';
+}
+function confBarClass(c) {
+  if (c >= 0.90) return 'conf-high';
+  if (c >= 0.60) return 'conf-medium';
+  return 'conf-low';
+}
 
-  // Dark map overlay for tactical feel
-  map.on('load', () => {
-    map.setPaintProperty('osm', 'raster-opacity', 0.4);
-    loadMissionData();
-  });
+// ── INTEL FRESHNESS ────────────────────────────────
+const threatTimestamps = {};
 
-  // Coords display
-  map.on('mousemove', (e) => {
-    const { lng, lat } = e.lngLat;
-    document.getElementById('map-coords').textContent =
-      lat.toFixed(4) + ', ' + lng.toFixed(4);
-  });
-
-  // Zoom metric
-  map.on('zoom', () => {
-    document.getElementById('metric-zoom').textContent =
-      map.getZoom().toFixed(1);
-  });
-
-  // ── LOAD MISSION DATA ─────────────────────────────
-  async function loadMissionData() {
-    try {
-      const token = await getToken();
-      const res = await fetch(
-        API_BASE + '/geo/mission/' + MISSION_ID + '/map',
-        { headers: { 'Authorization': 'Bearer ' + token } }
-      );
-
-      if (!res.ok) throw new Error('API unavailable');
-      const data = await res.json();
-
-      renderMapLayers(data);
-      updateMetrics(data);
-
-    } catch(e) {
-      console.log('Using demo data:', e.message);
-      renderDemoData();
-    }
+function freshness(threatId) {
+  if (!threatTimestamps[threatId]) {
+    threatTimestamps[threatId] = Date.now() - Math.floor(Math.random() * 180000);
   }
+  const age = Math.floor((Date.now() - threatTimestamps[threatId]) / 1000);
+  let label, cls;
+  if (age < 60)       { label = age + 's ago'; cls = 'fresh-high'; }
+  else if (age < 300) { label = Math.floor(age/60) + 'm ago'; cls = 'fresh-medium'; }
+  else                { label = Math.floor(age/60) + 'm ago — STALE'; cls = 'fresh-stale'; }
+  return { label, cls, age };
+}
 
-  // ── TOKEN ─────────────────────────────────────────
-  async function getToken() {
-    if (AUTH_TOKEN) return AUTH_TOKEN;
-    // In production: full auth flow
-    // For demo: fetch from local API
-    try {
-      const res = await fetch(API_BASE + '/health');
-      // Token would come from /auth/login in production
-      // For demo we use a static demo token approach
-    } catch(e) {}
-    return 'demo-token';
-  }
+// Update freshness every 10 seconds
+setInterval(renderThreats, 10000);
 
-  // ── RENDER MAP LAYERS ─────────────────────────────
-  function renderMapLayers(data) {
-    const layers = data.layers;
+// ── THREAT RENDERING ───────────────────────────────
+const threats = [
+  { id:'t1', type:'ENEMY POSITION', level:'HIGH', conf:0.87, source:'ISR_DRONE_ALPHA' },
+  { id:'t2', type:'IED', level:'MEDIUM', conf:0.65, source:'HUMINT' },
+];
 
-    // Route line
-    if (map.getSource('route')) map.removeSource('route');
-    if (map.getLayer('route-line')) map.removeLayer('route-line');
+function dotClass(level) {
+  return { HIGH:'threat-high', MEDIUM:'threat-medium',
+           LOW:'threat-low', CRITICAL:'threat-critical' }[level] || 'threat-medium';
+}
 
-    map.addSource('route', {
-      type: 'geojson',
-      data: layers.route
-    });
-    map.addLayer({
-      id: 'route-line',
-      type: 'line',
-      source: 'route',
-      paint: {
-        'line-color': '#00FF41',
-        'line-width': 2,
-        'line-dasharray': [2, 1]
-      }
-    });
-
-    // Threat radius polygons
-    const threatFeatures = layers.threats.features.filter(
-      f => f.geometry.type === 'Polygon'
-    );
-    if (map.getSource('threat-radius')) map.removeSource('threat-radius');
-    if (map.getLayer('threat-fill')) map.removeLayer('threat-fill');
-    if (map.getLayer('threat-outline')) map.removeLayer('threat-outline');
-
-    map.addSource('threat-radius', {
-      type: 'geojson',
-      data: { type: 'FeatureCollection', features: threatFeatures }
-    });
-    map.addLayer({
-      id: 'threat-fill',
-      type: 'fill',
-      source: 'threat-radius',
-      paint: {
-        'fill-color': ['get', 'color'],
-        'fill-opacity': ['get', 'fill_opacity']
-      }
-    });
-    map.addLayer({
-      id: 'threat-outline',
-      type: 'line',
-      source: 'threat-radius',
-      paint: {
-        'line-color': ['get', 'color'],
-        'line-width': 1,
-        'line-opacity': 0.8
-      }
-    });
-
-    // Waypoint markers
-    layers.waypoints.features.forEach(f => {
-      const el = document.createElement('div');
-      el.style.cssText = `
-        width: 10px; height: 10px;
-        background: ${f.properties.color};
-        border: 1px solid #000;
-        border-radius: 2px;
-        cursor: pointer;
-      `;
-
-      new maplibregl.Marker({ element: el })
-        .setLngLat(f.geometry.coordinates)
-        .setPopup(new maplibregl.Popup({ closeButton: false }).setHTML(
-          '<div style="background:#0a0a0a;color:#00FF41;padding:8px;font-family:monospace;font-size:11px">' +
-          '<strong>' + f.properties.name + '</strong><br>' +
-          f.properties.type + '<br>' +
-          'SEQ: ' + f.properties.sequence +
-          '</div>'
-        ))
-        .addTo(map);
-    });
-
-    // Fit map to bounds
-    if (data.map_frame && data.map_frame.bounds) {
-      const b = data.map_frame.bounds;
-      map.fitBounds(b, { padding: 40, duration: 1000 });
-    }
-  }
-
-  function updateMetrics(data) {
-    document.getElementById('metric-waypoints').textContent = data.waypoint_count;
-    document.getElementById('metric-threats').textContent = data.threat_count + ' ACTIVE';
-    document.getElementById('metric-distance').textContent =
-      data.operational_distance.total_km + 'km';
-    document.getElementById('mission-dist').textContent =
-      'DISTANCE: ' + data.operational_distance.total_km + 'km';
-  }
-
-  // ── DEMO DATA (no API) ────────────────────────────
-  function renderDemoData() {
-    // Route
-    map.addSource('route', {
-      type: 'geojson',
-      data: {
-        type: 'Feature',
-        geometry: {
-          type: 'LineString',
-          coordinates: [
-            [69.1500, 34.5100],
-            [69.1580, 34.5180],
-            [69.1703, 34.5260],
-            [69.1800, 34.5320]
-          ]
-        }
-      }
-    });
-    map.addLayer({
-      id: 'route-line',
-      type: 'line',
-      source: 'route',
-      paint: { 'line-color': '#00FF41', 'line-width': 2, 'line-dasharray': [2,1] }
-    });
-
-    // Threat circles (simplified)
-    addThreatCircle(34.5190, 69.1600, 300, '#FF3B30', 0.2);
-    addThreatCircle(34.5230, 69.1650, 150, '#FF8C00', 0.15);
-
-    // Waypoint markers
-    const waypoints = [
-      { name: 'SP-ALPHA', type: 'start_point', coords: [69.1500, 34.5100], color: '#00FF41' },
-      { name: 'ORP-BRAVO', type: 'objective_rally_point', coords: [69.1580, 34.5180], color: '#fff' },
-      { name: 'OBJ-FALCON', type: 'objective', coords: [69.1703, 34.5260], color: '#FF3B30' },
-      { name: 'PZ-CHARLIE', type: 'pickup_zone', coords: [69.1800, 34.5320], color: '#00BFFF' },
-    ];
-
-    waypoints.forEach(wp => {
-      const el = document.createElement('div');
-      el.style.cssText = `
-        width: 10px; height: 10px;
-        background: ${wp.color};
-        border: 1px solid #000;
-        border-radius: 2px;
-        cursor: pointer;
-      `;
-      new maplibregl.Marker({ element: el })
-        .setLngLat(wp.coords)
-        .setPopup(new maplibregl.Popup({ closeButton: false }).setHTML(
-          '<div style="background:#0a0a0a;color:#00FF41;padding:8px;font-family:monospace;font-size:11px">' +
-          '<strong>' + wp.name + '</strong><br>' + wp.type + '</div>'
-        ))
-        .addTo(map);
-    });
-
-    document.getElementById('metric-waypoints').textContent = '4';
-    document.getElementById('metric-threats').textContent = '2 ACTIVE';
-    document.getElementById('metric-distance').textContent = '3.7km';
-    document.getElementById('metric-zoom').textContent = map.getZoom().toFixed(1);
-    document.getElementById('mission-dist').textContent = 'DISTANCE: 3.7km';
-  }
-
-  function addThreatCircle(lat, lon, radiusM, color, opacity) {
-    const id = 'threat-' + Math.random().toString(36).substr(2,6);
-    const coords = [];
-    for (let i = 0; i <= 64; i++) {
-      const angle = (i * 360 / 64) * Math.PI / 180;
-      const dlat = (radiusM / 111320) * Math.cos(angle);
-      const dlon = (radiusM / (111320 * Math.cos(lat * Math.PI / 180))) * Math.sin(angle);
-      coords.push([lon + dlon, lat + dlat]);
-    }
-
-    map.addSource(id, {
-      type: 'geojson',
-      data: { type: 'Feature', geometry: { type: 'Polygon', coordinates: [coords] } }
-    });
-    map.addLayer({ id: id + '-fill', type: 'fill', source: id,
-      paint: { 'fill-color': color, 'fill-opacity': opacity } });
-    map.addLayer({ id: id + '-line', type: 'line', source: id,
-      paint: { 'line-color': color, 'line-width': 1, 'line-opacity': 0.7 } });
-  }
-
-  // ── AI REPLAN ─────────────────────────────────────
-  // Generate a random threat near the route for each replan
-  function randomThreat() {
-    const baseLat = 34.510 + Math.random() * 0.025;
-    const baseLon = 69.150 + Math.random() * 0.025;
-    const types = ['ENEMY POSITION', 'IED', 'PATROL', 'OBSERVATION POST', 'VEHICLE'];
-    const levels = ['MEDIUM', 'HIGH', 'CRITICAL'];
-    return {
-      lat: baseLat, lon: baseLon,
-      type: types[Math.floor(Math.random() * types.length)],
-      level: levels[Math.floor(Math.random() * levels.length)],
-      radius: 100 + Math.floor(Math.random() * 400),
-      confidence: 0.55 + Math.random() * 0.40,
-    };
-  }
-
-  async function triggerReplan() {
-    const btn = document.getElementById('replan-btn');
-    const coaList = document.getElementById('coa-list');
-    const processing = document.getElementById('processing');
-
-    btn.classList.add('loading');
-    btn.textContent = 'PROCESSING...';
-    processing.style.display = 'block';
-    coaList.innerHTML = '';
-
-    await new Promise(r => setTimeout(r, 800)); // Dramatic pause
-
-    // Generate a new random threat each replan cycle
-    const newThreat = randomThreat();
-    addThreatCircle(newThreat.lat, newThreat.lon, newThreat.radius,
-      newThreat.level === 'CRITICAL' ? '#8B0000' :
-      newThreat.level === 'HIGH' ? '#FF3B30' : '#FF8C00', 0.2);
-
-    // Update threat list in sidebar
-    const threatList = document.getElementById('threat-list');
-    const conf = (newThreat.confidence * 100).toFixed(0);
-    const dotClass = newThreat.level === 'HIGH' || newThreat.level === 'CRITICAL'
-      ? 'threat-high' : 'threat-medium';
-    threatList.innerHTML += `
-      <div class="threat-item" style="border-left:2px solid #FF3B30;padding-left:6px">
-        <div class="threat-dot ${dotClass}"></div>
-        <div class="threat-name">${newThreat.type} [NEW]<br>
-          <span class="threat-conf">SENSOR | ${conf}%</span></div>
-      </div>`;
-
-    try {
-      const token = await getToken();
-      const res = await fetch(API_BASE + '/ai/replan', {
-        method: 'POST',
-        headers: {
-          'Authorization': 'Bearer ' + token,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ mission_id: MISSION_ID })
-      });
-      const data = await res.json();
-      if (data.coas) renderCoAs(data);
-      else renderDemoCoAs();
-    } catch(e) {
-      renderDemoCoAs();
-    }
-
-    btn.classList.remove('loading');
-    btn.textContent = 'TRIGGER AI REPLAN';
-    processing.style.display = 'none';
-  }
-
-  function renderCoAs(data) {
-    const coaList = document.getElementById('coa-list');
-    const recommended = data.recommended_coa || '';
-
-    coaList.innerHTML = '<div style="color:#FF8C00;font-size:10px;letter-spacing:2px;margin-bottom:8px">REPLAN COMPLETE — ' + data.processing_ms + 'ms</div>';
-
-    data.coas.forEach(coa => {
-      const isRec = coa.title === recommended;
-      const riskClass = 'risk-' + (coa.risk_level || 'medium').toLowerCase();
-      coaList.innerHTML += `
-        <div class="coa-item ${isRec ? 'recommended' : ''}">
-          ${isRec ? '<div class="coa-recommended-label">RECOMMENDED</div>' : ''}
-          <div class="coa-title">${coa.title}</div>
-          <span class="coa-risk ${riskClass}">${coa.risk_level}</span>
-          <div class="coa-summary">${coa.summary}</div>
+function renderThreats() {
+  const list = document.getElementById('threat-list');
+  list.innerHTML = threats.map(t => {
+    const f = freshness(t.id);
+    const pct = Math.round(t.conf * 100);
+    return `
+      <div class="threat-item">
+        <div class="threat-header">
+          <div class="threat-dot ${dotClass(t.level)}"></div>
+          <div class="threat-name">${t.type}</div>
+          <span style="font-size:9px;color:${confColor(t.conf)}">${pct}%</span>
         </div>
-      `;
-    });
+        <div style="font-size:9px;color:#555;margin-left:18px">${t.source}</div>
+        <div style="margin-left:18px;margin-top:4px">
+          <div class="conf-bar ${confBarClass(t.conf)}" style="width:${pct}%"></div>
+        </div>
+        <div class="freshness ${f.cls}" style="margin-left:18px">
+          INTEL: ${f.label}
+        </div>
+      </div>`;
+  }).join('');
+}
+renderThreats();
 
-    coaList.innerHTML += '<div style="color:#FF3B30;font-size:10px;letter-spacing:1px;margin-top:8px">COMMANDER DECISION REQUIRED</div>';
-  }
+// ── TARGET RENDERING ───────────────────────────────
+const targets = [
+  { rank:1, name:'JACKPOT-1', type:'HVT', score:84.5, conf:0.91, roe:'compliant' },
+  { rank:2, name:'JACKPOT-2', type:'HVI', score:78.75, conf:0.74, roe:'compliant' },
+  { rank:3, name:'VEHICLE-ALPHA', type:'VEHICLE', score:77.75, conf:0.88, roe:'compliant' },
+  { rank:4, name:'LOW-CONF-TARGET', type:'PERSONNEL', score:61.5, conf:0.35, roe:'restricted' },
+];
 
-  function renderDemoCoAs() {
-    const bypass_dirs = ['Northern', 'Southern', 'Eastern', 'Western'];
-    const dir = bypass_dirs[Math.floor(Math.random() * bypass_dirs.length)];
-    const delta = 8 + Math.floor(Math.random() * 20);
-    const hold = 20 + Math.floor(Math.random() * 25);
-    const ms = (1.8 + Math.random() * 2.5).toFixed(1);
-    renderCoAs({
-      processing_ms: ms,
-      recommended_coa: 'CoA 1 — ' + dir + ' Bypass',
-      coas: [
-        { title: 'CoA 1 — ' + dir + ' Bypass', risk_level: 'MEDIUM',
-          summary: 'Reroute ' + dir.toLowerCase() + ' of threat axis, adding ' + delta + ' min. Maintains primary objective while avoiding threat radius.' },
-        { title: 'CoA 2 — Suppress and Advance', risk_level: 'HIGH',
-          summary: 'Fix threat with ISR asset RAVEN-2, advance on original route under suppression. Higher contact probability.' },
-        { title: 'CoA 3 — Hold and Reassess', risk_level: 'LOW',
-          summary: 'Hold at current ORP for ' + hold + ' min, gather additional ISR on new threat. Lowest risk, may compress mission window.' },
-      ]
-    });
-  }
+function renderTargets() {
+  document.getElementById('target-list').innerHTML = targets.map(t => {
+    const pct = Math.round(t.conf * 100);
+    const roeCls = t.roe === 'compliant' ? 'roe-compliant' :
+                   t.roe === 'hold' ? 'roe-hold' : 'roe-restricted';
+    const roeLabel = t.roe === 'compliant' ? 'ROE OK' :
+                     t.roe === 'hold' ? 'HOLD' : 'RESTRICTED';
+    return `
+      <div class="target-item">
+        <div class="target-header">
+          <span class="target-rank">[${t.rank}]</span>
+          <span class="target-name">${t.name}</span>
+          <span class="roe-badge ${roeCls}">${roeLabel}</span>
+        </div>
+        <div class="target-score-row">
+          <div class="conf-dot ${confDotClass(t.conf)}"></div>
+          <span class="target-meta">${t.type} | Score:${t.score}</span>
+          <span style="color:${confColor(t.conf)};font-size:10px">${pct}%</span>
+        </div>
+      </div>`;
+  }).join('');
+}
+renderTargets();
 
-  // ── HUD MODE ──────────────────────────────────────
-  function toggleHUD() {
-    document.body.classList.toggle('hud-mode');
-    const btn = document.getElementById('hud-toggle');
-    btn.textContent = document.body.classList.contains('hud-mode')
-      ? 'FULL VIEW' : 'HUD MODE';
-    setTimeout(() => map.resize(), 100);
+// ── MAP INIT ──────────────────────────────────────
+const map = new maplibregl.Map({
+  container: 'map',
+  style: {
+    version: 8,
+    sources: {
+      osm: { type:'raster',
+        tiles:['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
+        tileSize:256, attribution:'OpenStreetMap' },
+      terrain: { type:'raster-dem',
+        tiles:['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'],
+        tileSize:256, encoding:'terrarium' },
+    },
+    layers: [{ id:'osm', type:'raster', source:'osm' }],
+    terrain: null,
+  },
+  center: [69.165, 34.521],
+  zoom: 13,
+  pitch: 0,
+  bearing: 0,
+});
+
+let buildingsVisible = false;
+let is3D = false;
+
+map.on('load', () => {
+  map.setPaintProperty('osm', 'raster-opacity', 0.4);
+  renderDemoData();
+  pushAlert('AXIOM ONLINE — OPERATION NIGHTFALL ACTIVE', 'info');
+  setTimeout(() => pushAlert('THREAT DETECTED: ENEMY POSITION — HIGH CONFIDENCE', 'critical'), 1500);
+});
+
+map.on('mousemove', e => {
+  document.getElementById('map-coords').textContent =
+    e.lngLat.lat.toFixed(4) + ', ' + e.lngLat.lng.toFixed(4);
+});
+
+// ── 3D TERRAIN TOGGLE ─────────────────────────────
+function setView(mode) {
+  if (mode === '3d') {
+    is3D = true;
+    map.setTerrain({ source:'terrain', exaggeration: 1.8 });
+    map.easeTo({ pitch: 55, bearing: -20, duration: 1200 });
+    document.getElementById('btn-2d').classList.remove('active');
+    document.getElementById('btn-3d').classList.add('active');
+    pushAlert('3D TERRAIN ENABLED', 'info');
+  } else {
+    is3D = false;
+    map.setTerrain(null);
+    map.easeTo({ pitch: 0, bearing: 0, duration: 800 });
+    document.getElementById('btn-3d').classList.remove('active');
+    document.getElementById('btn-2d').classList.add('active');
   }
+}
+
+// ── BUILDINGS TOGGLE ──────────────────────────────
+function toggleBuildings() {
+  buildingsVisible = !buildingsVisible;
+  const btn = document.getElementById('btn-buildings');
+
+  if (buildingsVisible) {
+    if (!map.getSource('osm-buildings')) {
+      map.addSource('osm-buildings', {
+        type: 'vector',
+        url: 'https://demotiles.maplibre.org/tiles/tiles.json'
+      });
+    }
+    // Add building extrusion using OpenStreetMap vector tiles
+    if (!map.getLayer('3d-buildings')) {
+      map.addLayer({
+        id: '3d-buildings',
+        type: 'fill-extrusion',
+        source: 'osm-buildings',
+        'source-layer': 'buildings',
+        paint: {
+          'fill-extrusion-color': '#1a1a2e',
+          'fill-extrusion-height': ['coalesce', ['get', 'height'], 10],
+          'fill-extrusion-base': 0,
+          'fill-extrusion-opacity': 0.75,
+        }
+      });
+    } else {
+      map.setLayoutProperty('3d-buildings', 'visibility', 'visible');
+    }
+    btn.classList.add('active');
+    if (!is3D) setView('3d');
+    pushAlert('3D BUILDINGS ENABLED', 'info');
+  } else {
+    if (map.getLayer('3d-buildings')) {
+      map.setLayoutProperty('3d-buildings', 'visibility', 'none');
+    }
+    btn.classList.remove('active');
+  }
+}
+
+// ── DEMO MAP DATA ─────────────────────────────────
+function renderDemoData() {
+  // Route
+  map.addSource('route', {
+    type: 'geojson',
+    data: { type:'Feature', geometry: { type:'LineString',
+      coordinates: [[69.1500,34.5100],[69.1580,34.5180],[69.1703,34.5260],[69.1800,34.5320]]
+    }}
+  });
+  map.addLayer({ id:'route-line', type:'line', source:'route',
+    paint: { 'line-color':'#00FF41', 'line-width':2, 'line-dasharray':[2,1] }
+  });
+
+  // Threats
+  addThreatCircle('t1', 34.5190, 69.1600, 300, '#FF3B30', 0.22);
+  addThreatCircle('t2', 34.5230, 69.1650, 150, '#FF8C00', 0.16);
+
+  // Waypoints
+  [
+    { name:'SP-ALPHA', coords:[69.1500,34.5100], color:'#00FF41', type:'START POINT' },
+    { name:'ORP-BRAVO', coords:[69.1580,34.5180], color:'#ffffff', type:'OBJ RALLY PT' },
+    { name:'OBJ-FALCON', coords:[69.1703,34.5260], color:'#FF3B30', type:'OBJECTIVE' },
+    { name:'PZ-CHARLIE', coords:[69.1800,34.5320], color:'#00BFFF', type:'PICKUP ZONE' },
+  ].forEach(wp => {
+    const el = document.createElement('div');
+    el.style.cssText = `width:10px;height:10px;background:${wp.color};
+      border:1px solid #000;border-radius:2px;cursor:pointer;`;
+    new maplibregl.Marker({element:el})
+      .setLngLat(wp.coords)
+      .setPopup(new maplibregl.Popup({closeButton:false}).setHTML(
+        `<div style="background:#0a0a0a;color:#00FF41;padding:8px;font-family:monospace;font-size:11px">
+         <strong>${wp.name}</strong><br>${wp.type}</div>`
+      )).addTo(map);
+  });
+}
+
+function addThreatCircle(id, lat, lon, radiusM, color, opacity) {
+  const coords = [];
+  for (let i = 0; i <= 64; i++) {
+    const a = (i*360/64)*Math.PI/180;
+    const dlat = (radiusM/111320)*Math.cos(a);
+    const dlon = (radiusM/(111320*Math.cos(lat*Math.PI/180)))*Math.sin(a);
+    coords.push([lon+dlon, lat+dlat]);
+  }
+  map.addSource('threat-'+id, { type:'geojson',
+    data:{type:'Feature',geometry:{type:'Polygon',coordinates:[coords]}}});
+  map.addLayer({id:'threat-fill-'+id, type:'fill', source:'threat-'+id,
+    paint:{'fill-color':color,'fill-opacity':opacity}});
+  map.addLayer({id:'threat-line-'+id, type:'line', source:'threat-'+id,
+    paint:{'line-color':color,'line-width':1,'line-opacity':0.8}});
+}
+
+// ── AI REPLAN ─────────────────────────────────────
+function randomThreat() {
+  const lat = 34.510 + Math.random()*0.025;
+  const lon = 69.150 + Math.random()*0.025;
+  const types = ['ENEMY POSITION','IED','PATROL','OBSERVATION POST','VEHICLE'];
+  const levels = ['MEDIUM','HIGH','CRITICAL'];
+  const conf = 0.55 + Math.random()*0.40;
+  return { lat, lon, conf,
+    type: types[Math.floor(Math.random()*types.length)],
+    level: levels[Math.floor(Math.random()*levels.length)],
+    radius: 100 + Math.floor(Math.random()*400),
+  };
+}
+
+async function triggerReplan() {
+  const btn = document.getElementById('replan-btn');
+  const coaList = document.getElementById('coa-list');
+  document.getElementById('processing').style.display = 'block';
+  btn.classList.add('loading');
+  btn.textContent = 'PROCESSING...';
+  coaList.innerHTML = '';
+
+  await new Promise(r => setTimeout(r, 900));
+
+  // New threat appears on map
+  const nt = randomThreat();
+  const tid = 'nt-' + Date.now();
+  const color = nt.level==='CRITICAL'?'#8B0000':nt.level==='HIGH'?'#FF3B30':'#FF8C00';
+  addThreatCircle(tid, nt.lat, nt.lon, nt.radius, color, 0.2);
+  threatTimestamps[tid] = Date.now();
+  threats.push({ id:tid, type:nt.type, level:nt.level, conf:nt.conf, source:'SENSOR' });
+  renderThreats();
+  document.getElementById('threat-badge').textContent = threats.length;
+  document.getElementById('metric-threats').textContent = threats.length + ' ACTIVE';
+
+  pushAlert(`NEW THREAT: ${nt.type} — ${nt.level}`, nt.level==='CRITICAL'?'critical':'warning');
+
+  renderDemoCoAs(nt);
+
+  btn.classList.remove('loading');
+  btn.textContent = 'TRIGGER AI REPLAN';
+  document.getElementById('processing').style.display = 'none';
+}
+
+function renderDemoCoAs(threat) {
+  const dirs = ['Northern','Southern','Eastern','Western'];
+  const dir = dirs[Math.floor(Math.random()*dirs.length)];
+  const delta = 8 + Math.floor(Math.random()*18);
+  const ms = (1.5 + Math.random()*2).toFixed(1);
+  const baseSuccess = 84;
+
+  const coas = [
+    {
+      title: `CoA 1 — ${dir} Bypass`,
+      risk: 'MEDIUM',
+      success: baseSuccess + 8,
+      bullets: [
+        `Avoids ${threat.type.toLowerCase()} corridor`,
+        `Reduces exposure time by ${delta}%`,
+        'Preserves objective timeline',
+      ],
+      summary: `Reroute ${dir.toLowerCase()} of threat axis. Maintains primary objective.`,
+      recommended: true,
+    },
+    {
+      title: 'CoA 2 — Suppress and Advance',
+      risk: 'HIGH',
+      success: baseSuccess + 2,
+      bullets: [
+        'Fix threat with RAVEN-2 ISR asset',
+        'Advance on original route under suppression',
+        '+34% IED exposure on current path',
+      ],
+      summary: 'Faster but higher contact probability. ISR asset required.',
+      recommended: false,
+    },
+    {
+      title: 'CoA 3 — Hold and Reassess',
+      risk: 'LOW',
+      success: baseSuccess - 5,
+      bullets: [
+        `Hold at ORP — ${20+Math.floor(Math.random()*20)} min window`,
+        'Additional ISR characterization of threat',
+        'May compress mission timeline',
+      ],
+      summary: 'Lowest risk. Gather intel before committing.',
+      recommended: false,
+    },
+  ];
+
+  const coaList = document.getElementById('coa-list');
+  coaList.innerHTML = `
+    <div style="color:#FF8C00;font-size:10px;letter-spacing:2px;margin-bottom:8px">
+      REPLAN COMPLETE — ${ms}ms | ROUTE A:${baseSuccess}% → RECOMMENDED:${baseSuccess+8}%
+    </div>`;
+
+  coas.forEach(coa => {
+    const fillColor = coa.success >= 90 ? '#00FF41' : coa.success >= 80 ? '#FF8C00' : '#FF3B30';
+    coaList.innerHTML += `
+      <div class="coa-item ${coa.recommended ? 'recommended' : ''}">
+        ${coa.recommended ? '<div class="coa-recommended-label">★ RECOMMENDED</div>' : ''}
+        <div class="coa-title">${coa.title}</div>
+        <span class="coa-risk risk-${coa.risk.toLowerCase()}">${coa.risk}</span>
+        <div class="success-row">
+          <span class="success-label">SUCCESS EST.</span>
+          <div class="success-bar-bg">
+            <div class="success-bar-fill" style="width:${coa.success}%;background:${fillColor}"></div>
+          </div>
+          <span class="success-value">${coa.success}%</span>
+        </div>
+        <ul class="explain-list">
+          ${coa.bullets.map(b => `<li>${b}</li>`).join('')}
+        </ul>
+        <div class="coa-summary">${coa.summary}</div>
+      </div>`;
+  });
+
+  coaList.innerHTML += '<div class="coa-decision">⚠ COMMANDER DECISION REQUIRED</div>';
+  document.getElementById('metric-success').textContent = (baseSuccess+8) + '%';
+}
+
+// ── HUD MODE ──────────────────────────────────────
+function toggleHUD() {
+  document.body.classList.toggle('hud-mode');
+  document.getElementById('hud-toggle').textContent =
+    document.body.classList.contains('hud-mode') ? 'FULL VIEW' : 'HUD MODE';
+  setTimeout(() => map.resize(), 100);
+}
 </script>
 </body>
 </html>
