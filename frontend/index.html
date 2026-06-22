@@ -317,6 +317,7 @@
     <button class="map-btn active" id="btn-2d" onclick="setView('2d')">2D TACTICAL</button>
     <button class="map-btn" id="btn-3d" onclick="setView('3d')">3D TERRAIN</button>
     <button class="map-btn" id="btn-buildings" onclick="toggleBuildings()">BUILDINGS</button>
+    <button class="map-btn" id="btn-predict" onclick="togglePrediction()">THREAT PREDICT</button>
   </div>
   <div class="map-badge" id="map-classification">UNCLASSIFIED</div>
   <div class="map-badge" id="map-coords" style="bottom:8px;right:8px">---, ---</div>
@@ -546,6 +547,51 @@ const map = new maplibregl.Map({
 
 let buildingsVisible = false;
 let is3D = false;
+
+// Build timeline via JS to avoid CSS conflicts
+function buildTimeline() {
+  const tl = document.createElement('div');
+  tl.id = 'timeline-container';
+  tl.setAttribute('style', [
+    'position:fixed',
+    'bottom:0',
+    'left:0',
+    'width:100%',
+    'height:56px',
+    'background:rgba(0,0,0,0.95)',
+    'border-top:2px solid #00FF41',
+    'display:flex',
+    'align-items:center',
+    'padding:0 16px',
+    'gap:12px',
+    'z-index:99999',
+    'box-sizing:border-box',
+    'font-family:Courier New,monospace',
+  ].join(';'));
+
+  tl.innerHTML = `
+    <span style="color:#00FF41;font-size:10px;letter-spacing:2px;white-space:nowrap;min-width:80px">MISSION T+</span>
+    <span style="color:#444;font-size:9px;white-space:nowrap">NOW</span>
+    <input type="range" id="timeline-slider" min="0" max="60" value="0"
+      oninput="scrubTimeline(this.value)"
+      style="flex:1;-webkit-appearance:none;height:3px;background:linear-gradient(to right,#00FF41 0%,#1a1a1a 0%);border-radius:2px;outline:none;cursor:pointer">
+    <span style="color:#444;font-size:9px;white-space:nowrap">+60m</span>
+    <span id="timeline-time" style="color:#fff;font-size:11px;letter-spacing:1px;min-width:60px;text-align:right">T+00:00</span>
+    <span id="timeline-success" style="color:#00FF41;font-size:10px;letter-spacing:1px;white-space:nowrap;min-width:110px;text-align:right">SUCCESS: 84%</span>
+  `;
+
+  document.body.appendChild(tl);
+
+  // Style the thumb via injected stylesheet
+  const style = document.createElement('style');
+  style.textContent = '#timeline-slider::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:#00FF41;border:2px solid #000;cursor:pointer;box-shadow:0 0 6px rgba(0,255,65,0.5)}';
+  document.head.appendChild(style);
+
+  // Push map and sidebar up
+  document.getElementById('map').style.bottom = '56px';
+  document.getElementById('sidebar').style.bottom = '56px';
+}
+buildTimeline();
 
 map.on('load', () => {
   // Add terrain source after load
@@ -794,6 +840,183 @@ function renderDemoCoAs(threat) {
 
   coaList.innerHTML += '<div class="coa-decision">⚠ COMMANDER DECISION REQUIRED</div>';
   document.getElementById('metric-success').textContent = (baseSuccess+8) + '%';
+}
+
+// ── THREAT PREDICTION LAYER ──────────────────────
+let predictionVisible = false;
+const predictionLayers = [];
+
+function togglePrediction() {
+  predictionVisible = !predictionVisible;
+  const btn = document.getElementById('btn-predict');
+
+  if (predictionVisible) {
+    renderPredictionCorridors();
+    btn.classList.add('active');
+    pushAlert('THREAT PREDICTION LAYER ACTIVE', 'warning');
+  } else {
+    predictionLayers.forEach(id => {
+      if (map.getLayer(id)) map.removeLayer(id);
+      if (map.getSource(id)) map.removeSource(id);
+    });
+    predictionLayers.length = 0;
+    btn.classList.remove('active');
+  }
+}
+
+function renderPredictionCorridors() {
+  // Each active threat gets a prediction corridor
+  // showing likely movement direction + probability
+  const predictions = [
+    {
+      id: 'pred-t1',
+      fromLat: 34.5190, fromLon: 69.1600,
+      toLat: 34.5240, toLon: 69.1650,
+      probability: 0.72,
+      label: 'LIKELY MOVEMENT',
+      color: '#FF8C00',
+    },
+    {
+      id: 'pred-t2',
+      fromLat: 34.5230, fromLon: 69.1650,
+      toLat: 34.5200, toLon: 69.1720,
+      probability: 0.58,
+      label: 'POSSIBLE PATROL',
+      color: '#FFD700',
+    },
+  ];
+
+  predictions.forEach(p => {
+    // Direction vector
+    const dlat = p.toLat - p.fromLat;
+    const dlon = p.toLon - p.fromLon;
+
+    // Corridor width proportional to uncertainty
+    const width = (1 - p.probability) * 0.008;
+    const perpLat = -dlon * 0.5;
+    const perpLon = dlat * 0.5;
+
+    // Build corridor polygon (tapered — narrow at origin, wide at end)
+    const corridorCoords = [
+      [p.fromLon + perpLon * 0.1, p.fromLat + perpLat * 0.1],
+      [p.toLon + perpLon * width * 8, p.toLat + perpLat * width * 8],
+      [p.toLon - perpLon * width * 8, p.toLat - perpLat * width * 8],
+      [p.fromLon - perpLon * 0.1, p.fromLat - perpLat * 0.1],
+      [p.fromLon + perpLon * 0.1, p.fromLat + perpLat * 0.1],
+    ];
+
+    // Add corridor fill
+    const fillId = p.id + '-fill';
+    map.addSource(fillId, {
+      type: 'geojson',
+      data: { type: 'Feature', geometry: { type: 'Polygon', coordinates: [corridorCoords] } }
+    });
+    map.addLayer({
+      id: fillId, type: 'fill', source: fillId,
+      paint: { 'fill-color': p.color, 'fill-opacity': p.probability * 0.25 }
+    });
+    predictionLayers.push(fillId);
+
+    // Add direction arrow line
+    const lineId = p.id + '-line';
+    map.addSource(lineId, {
+      type: 'geojson',
+      data: { type: 'Feature', geometry: { type: 'LineString',
+        coordinates: [[p.fromLon, p.fromLat], [p.toLon, p.toLat]] } }
+    });
+    map.addLayer({
+      id: lineId, type: 'line', source: lineId,
+      paint: { 'line-color': p.color, 'line-width': 2,
+        'line-dasharray': [3, 2], 'line-opacity': 0.85 }
+    });
+    predictionLayers.push(lineId);
+
+    // Probability label marker
+    const el = document.createElement('div');
+    el.style.cssText = `
+      background: rgba(0,0,0,0.82);
+      border: 1px solid ${p.color};
+      color: ${p.color};
+      font-family: 'Courier New', monospace;
+      font-size: 9px;
+      padding: 2px 6px;
+      letter-spacing: 1px;
+      pointer-events: none;
+    `;
+    el.textContent = p.label + ' ' + Math.round(p.probability * 100) + '%';
+
+    const midLat = (p.fromLat + p.toLat) / 2;
+    const midLon = (p.fromLon + p.toLon) / 2;
+    new maplibregl.Marker({ element: el })
+      .setLngLat([midLon, midLat])
+      .addTo(map);
+  });
+}
+
+// ── TIMELINE SCRUBBER ─────────────────────────────
+let timelineInterval = null;
+const baseSuccess = 84;
+
+function scrubTimeline(value) {
+  const minutes = parseInt(value);
+  const hrs = Math.floor(minutes / 60);
+  const mins = minutes % 60;
+  const timeStr = `T+${String(hrs).padStart(2,'0')}:${String(mins).padStart(2,'0')}`;
+  document.getElementById('timeline-time').textContent = timeStr;
+
+  // Update slider gradient
+  const slider = document.getElementById('timeline-slider');
+  const pct = (minutes / 60) * 100;
+  slider.style.background = `linear-gradient(to right, #00FF41 ${pct}%, #1a1a1a ${pct}%)`;
+
+  // Animate threats based on time
+  updateThreatsAtTime(minutes);
+
+  // Recalculate mission success
+  const success = calculateSuccessAtTime(minutes);
+  const color = success >= 85 ? '#00FF41' : success >= 75 ? '#FF8C00' : '#FF3B30';
+  document.getElementById('timeline-success').textContent = 'SUCCESS: ' + success + '%';
+  document.getElementById('timeline-success').style.color = color;
+
+  // Update metric
+  document.getElementById('metric-success').textContent = success + '%';
+}
+
+function updateThreatsAtTime(minutes) {
+  // Threats move and confidence changes over time
+  // T+0: static. T+30: patrols have moved. T+60: high uncertainty.
+  const t = minutes / 60; // 0 to 1
+
+  // Update freshness indicators to reflect simulated time passage
+  threats.forEach((threat, i) => {
+    const ageFactor = t * 3600; // simulate time passing
+    threatTimestamps[threat.id] = Date.now() - ageFactor * 1000;
+  });
+
+  // After T+20, a new predicted threat appears on route
+  const warningEl = document.getElementById('timeline-warning');
+  if (minutes >= 20 && !warningEl) {
+    const div = document.createElement('div');
+    div.id = 'timeline-warning';
+    div.style.cssText = 'color:#FF3B30;font-size:10px;letter-spacing:1px;margin-top:6px;';
+    div.textContent = '⚠ PATROL PREDICTED ON ROUTE AT T+' + minutes + 'm';
+    document.getElementById('threat-list').appendChild(div);
+  } else if (minutes < 20 && warningEl) {
+    warningEl.remove();
+  }
+
+  renderThreats();
+}
+
+function calculateSuccessAtTime(minutes) {
+  // Mission success degrades as time passes and threats accumulate
+  // Replan improves it. Timeline shows the cost of delay.
+  if (minutes === 0) return baseSuccess;
+
+  const threatPenalty = Math.floor(minutes / 10) * 2;
+  const stalePenalty = minutes > 30 ? Math.floor((minutes - 30) / 5) : 0;
+  const success = Math.max(45, baseSuccess - threatPenalty - stalePenalty);
+  return success;
 }
 
 // ── HUD MODE ──────────────────────────────────────
