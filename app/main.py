@@ -18,6 +18,7 @@ from app.api.v1.router import router as v1_router
 
 configure_logging()
 logger = get_logger("axiom.startup")
+from app.db.database import init_db
 
 app = FastAPI(
     title="AXIOM",
@@ -73,6 +74,11 @@ if os.path.exists("frontend"):
 async def serve_ui():
     return FileResponse("frontend/index.html")
 
+
+@app.on_event("startup")
+async def startup_event():
+    await init_db()
+    logger.info("database_initialized", db="axiom.db")
 
 logger.info(
     "axiom_startup",
