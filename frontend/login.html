@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AXIOM - Mission Command Authentication</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background-color: #000000;
+            color: #00FF41;
+            font-family: 'Courier New', monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            width: 100%;
+            max-width: 420px;
+            padding: 20px;
+        }
+        .login-box {
+            border: 2px solid #00FF41;
+            background-color: #0a0a0a;
+            padding: 40px;
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.3);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            border-bottom: 1px solid #00FF41;
+            padding-bottom: 20px;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+        }
+        .subtitle {
+            font-size: 12px;
+            color: #00AA2F;
+            letter-spacing: 1px;
+        }
+        .form-group {
+            margin-bottom: 24px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            background-color: #1a1a1a;
+            border: 1px solid #00FF41;
+            color: #00FF41;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            outline: none;
+        }
+        .form-group input:focus {
+            box-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+        }
+        .button-group {
+            display: flex;
+            gap: 12px;
+        }
+        button {
+            flex: 1;
+            padding: 14px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            font-weight: bold;
+            cursor: pointer;
+            border: 1px solid #00FF41;
+        }
+        .btn-login {
+            background-color: #00FF41;
+            color: #000000;
+        }
+        .btn-login:hover:not(:disabled) {
+            box-shadow: 0 0 15px rgba(0, 255, 65, 0.7);
+            transform: translateY(-2px);
+        }
+        .btn-login:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .btn-clear {
+            background-color: transparent;
+            color: #00FF41;
+        }
+        .error-message {
+            display: none;
+            background-color: rgba(255, 50, 50, 0.1);
+            border: 1px solid #FF3232;
+            color: #FF6B6B;
+            padding: 12px;
+            margin-bottom: 20px;
+            font-size: 12px;
+        }
+        .error-message.show {
+            display: block;
+        }
+        .status-indicator {
+            text-align: center;
+            font-size: 11px;
+            color: #00AA2F;
+            margin-top: 20px;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="login-box">
+            <div class="header">
+                <div class="logo">AXIOM</div>
+                <div class="subtitle">Mission Command Authentication</div>
+            </div>
+            <div class="error-message" id="errorMessage"></div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="callsign">Callsign</label>
+                    <input type="text" id="callsign" name="callsign" placeholder="Enter your callsign" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Enter password" required>
+                </div>
+                <div class="button-group">
+                    <button type="submit" class="btn-login" id="loginBtn">Login</button>
+                    <button type="reset" class="btn-clear" id="clearBtn">Clear</button>
+                </div>
+            </form>
+            <div class="status-indicator" id="statusIndicator"></div>
+        </div>
+    </div>
+    <script>
+        const loginForm = document.getElementById('loginForm');
+        const loginBtn = document.getElementById('loginBtn');
+        const errorMessage = document.getElementById('errorMessage');
+        const statusIndicator = document.getElementById('statusIndicator');
+        const callsignInput = document.getElementById('callsign');
+
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.classList.add('show');
+        }
+
+        function clearError() {
+            errorMessage.classList.remove('show');
+        }
+
+        function setLoading(isLoading) {
+            loginBtn.disabled = isLoading;
+            if (isLoading) {
+                statusIndicator.textContent = 'Authenticating...';
+            } else {
+                statusIndicator.textContent = '';
+            }
+        }
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            clearError();
+
+            const callsign = callsignInput.value.trim();
+            const password = document.getElementById('password').value;
+
+            if (!callsign || !password) {
+                showError('Callsign and password are required.');
+                return;
+            }
+
+            setLoading(true);
+
+            try {
+                const response = await fetch('/api/v1/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: callsign, password: password })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    showError(data.detail || 'Authentication failed.');
+                    setLoading(false);
+                    return;
+                }
+
+                sessionStorage.setItem('access_token', data.access_token);
+                sessionStorage.setItem('user_role', data.role || 'Operator');
+                sessionStorage.setItem('user_callsign', callsign);
+
+                statusIndicator.textContent = 'Redirecting...';
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 500);
+
+            } catch (error) {
+                console.error('Login error:', error);
+                showError('Connection error.');
+                setLoading(false);
+            }
+        });
+
+        callsignInput.focus();
+    </script>
+</body>
+</html>

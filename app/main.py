@@ -15,6 +15,7 @@ import time
 from app.core.config import settings
 from app.core.logging import configure_logging, get_logger
 from app.api.v1.router import router as v1_router
+from app.api.v1.routes.auth import router as auth_router
 
 configure_logging()
 logger = get_logger("axiom.startup")
@@ -65,6 +66,7 @@ async def global_exception_handler(request: Request, exc: Exception):
 
 
 app.include_router(v1_router, prefix=settings.API_V1_PREFIX)
+app.include_router(auth_router, prefix="/api/v1")
 
 # Serve tactical UI
 if os.path.exists("frontend"):
@@ -73,6 +75,10 @@ if os.path.exists("frontend"):
 @app.get("/", include_in_schema=False)
 async def serve_ui():
     return FileResponse("frontend/index.html")
+
+@app.get("/login", include_in_schema=False)
+async def serve_login():
+    return FileResponse("frontend/login.html")
 
 
 @app.on_event("startup")
