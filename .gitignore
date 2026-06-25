@@ -31,3 +31,4 @@ htmlcov/
 *.key
 *.p12
 secrets/
+axiom.db
